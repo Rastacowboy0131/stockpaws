@@ -3,19 +3,17 @@
   "name": "Waffles",
   "breed": "scalper",
   "live": true,
+  "liveTrading": false,
+  "funder": null,
+  "slippagePct": 1,
   "aggression": 0.15,
   "patience": 2,
   "capUsd": 300,
   "maxDailyLossPct": 5,
   "params": {},
   "diet": [
-    {
-      "symbol": "AAPL",
-      "address": "0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9"
-    },
-    {
-      "symbol": "TSLA",
-      "address": "0x322F0929c4625eD5bAd873c95208D54E1c003b2d"
-    }
+    { "symbol": "NVDA", "address": "0xd0601CE157Db5bdC3162BbaC2a2C8aF5320D9EEC" },
+    { "symbol": "AAPL", "address": "0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9" },
+    { "symbol": "QQQ", "address": "0xD5f3879160bc7c32ebb4dC785F8a4F505888de68" }
   ]
 }

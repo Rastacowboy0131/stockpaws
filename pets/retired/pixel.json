@@ -1,14 +1,18 @@
 {
-  "id": "zoomer",
-  "name": "Zoomer",
-  "breed": "momentum",
-  "live": true,
-  "aggression": 0.25,
-  "patience": 5,
-  "capUsd": 600,
+  "id": "pixel",
+  "name": "Pixel",
+  "breed": "scalper",
+  "live": false,
+  "aggression": 0.2,
+  "patience": 2,
+  "capUsd": 500,
   "maxDailyLossPct": 5,
   "params": {},
   "diet": [
+    {
+      "symbol": "AAPL",
+      "address": "0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9"
+    },
     {
       "symbol": "TSLA",
       "address": "0x322F0929c4625eD5bAd873c95208D54E1c003b2d"

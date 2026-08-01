@@ -27,12 +27,17 @@ const sizeUsd = pet.aggression * pet.capUsd;
 openPosition(state, token, sizeUsd, sig.priceUsd);
 logTrade(pet.id, { ts: new Date().toISOString(), mode: "paper", petId: pet.id, wallet: address, side: "buy", token: token.symbol, tokenAddress: token.address, sizeUsd, quotedPriceUsd: sig.priceUsd, pairAddress: sig.pairAddress, reason: "smoke test forced entry" });
 
-// Simulate a +0.8% move; scalper should take profit.
-const upPrice = sig.priceUsd * 1.008;
+// Simulate a +1.6% move; fee-aware scalper (default target +1.5%) should take profit.
+const upPrice = sig.priceUsd * 1.016;
 const fakeSig = { ...sig, priceUsd: upPrice };
 const decision = breeds.scalper(pet, fakeSig, state.positions[token.address]);
-console.log("breed decision at +0.8%:", decision);
-if (decision?.side !== "sell") throw new Error("expected scalper sell at +0.8%");
+console.log("breed decision at +1.6%:", decision);
+if (decision?.side !== "sell") throw new Error("expected scalper sell at +1.6%");
+
+// Sanity: +0.8% must NOT trigger a sell any more (would not clear round-trip costs).
+const small = breeds.scalper(pet, { ...sig, priceUsd: sig.priceUsd * 1.008 }, state.positions[token.address]);
+if (small?.side === "sell" && small.reason.includes("target")) throw new Error("scalper took profit below cost-aware target");
+console.log("breed decision at +0.8% (should not be a target hit):", small);
 
 const mtm = markToMarket(state, { [token.address]: upPrice });
 console.log("mark to market before exit:", mtm.unrealizedUsd.toFixed(4), "USD");

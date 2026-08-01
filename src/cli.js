@@ -4,14 +4,23 @@ import fs from "node:fs";
 import path from "node:path";
 import { petWallet } from "./wallet.js";
 import { loadState, markToMarket } from "./portfolio.js";
+import { BREED_NAMES, resolveBreed } from "./breeds.js";
 
 const PETS_DIR = "pets";
 
 // Known Robinhood Chain stock token addresses for diet shorthand.
+// Addresses verified against the most liquid robinhood-chain pair on dexscreener.
 const KNOWN_TOKENS = {
   AAPL: "0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9",
   TSLA: "0x322F0929c4625eD5bAd873c95208D54E1c003b2d",
   MSFT: "0xe93237C50D904957Cf27E7B1133b510C669c2e74",
+  NVDA: "0xd0601CE157Db5bdC3162BbaC2a2C8aF5320D9EEC",
+  SPY: "0x117cc2133c37B721F49dE2A7a74833232B3B4C0C",
+  QQQ: "0xD5f3879160bc7c32ebb4dC785F8a4F505888de68",
+  GOOGL: "0x2e0847E8910a9732eB3fb1bb4b70a580ADAD4FE3",
+  AMZN: "0x12f190a9F9d7D37a250758b26824B97CE941bF54",
+  AMD: "0x86923f96303D656E4aa86D9d42D1e57ad2023fdC",
+  COIN: "0x6330D8C3178a418788dF01a47479c0ce7CCF450b",
 };
 
 function parseFlags(argv) {
@@ -39,13 +48,13 @@ function loadPets() {
 
 function createPet(flags) {
   const name = flags.name;
-  const breed = flags.breed;
-  if (!name || !breed) {
+  const breed = resolveBreed(flags.breed);
+  if (!name || !flags.breed) {
     console.error("usage: cli.js create-pet --name Waffles --breed scalper [--aggression 0.2] [--patience 2] [--cap 500] [--diet AAPL,TSLA]");
     process.exit(1);
   }
-  if (!["momentum", "dipper", "scalper"].includes(breed)) {
-    console.error(`unknown breed "${breed}" (momentum | dipper | scalper)`);
+  if (!breed) {
+    console.error(`unknown breed "${flags.breed}" (${BREED_NAMES.join(" | ")})`);
     process.exit(1);
   }
   const id = name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
@@ -137,7 +146,7 @@ switch (cmd) {
   case "retire-pet": retirePet(rest.find(a => !a.startsWith("--"))); break;
   default:
     console.log("stockpaws CLI (paper mode)");
-    console.log("  create-pet --name <name> --breed <momentum|dipper|scalper> [--aggression 0.2] [--patience 2] [--cap 500] [--diet AAPL,TSLA] [--funder 0x...]");
+    console.log("  create-pet --name <name> --breed <scalper|guardian|swing|sniper> [--aggression 0.2] [--patience 2] [--cap 500] [--diet AAPL,TSLA] [--funder 0x...]");
     console.log("  list-pets");
     console.log("  retire-pet <id>");
 }

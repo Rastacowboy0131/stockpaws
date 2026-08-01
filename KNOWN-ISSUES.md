@@ -6,11 +6,10 @@ be fixed before scaling, LOW is cosmetic/hardening.
 
 ## Engine (paper)
 
-- MED `portfolio.js` paper P&L models zero fees and zero slippage. Real fills
-  pay the pool fee tier (5-100 bps) plus price impact, so paper results
-  overstate live results, especially for the scalper breed whose target is
-  +0.6%. Before pointing real money at it, subtract at least 2x fee tier from
-  every paper round trip or the strategies will look better than they are.
+- FIXED (2026-08-01) `portfolio.js` paper P&L used to model zero fees and zero
+  slippage. The engine now applies a cost model per side (pool fee, default
+  30 bps, plus slippage, default 0.1%) to every paper fill, and the scalper
+  target was raised to clear round-trip costs with margin.
 - MED No stale price detection. A dexscreener pair with no trades for hours
   still returns its last price; breeds will happily "trade" against it. Add a
   freshness check (e.g. require txns.h1 > 0 or reject pairs whose h24 volume

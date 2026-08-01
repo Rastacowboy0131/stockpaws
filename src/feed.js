@@ -3,12 +3,13 @@
 // CLI: node src/feed.js [--since <iso>]  prints new messages and advances state/feed-cursor.json.
 import fs from "node:fs";
 import path from "node:path";
+import { resolveBreed } from "./breeds.js";
 
 const TRADES_DIR = "trades";
 const PETS_DIR = "pets";
 const CURSOR_FILE = path.join("state", "feed-cursor.json");
 
-const BREED_EMOJI = { momentum: "🚀", dipper: "🎣", scalper: "⚡" };
+const BREED_EMOJI = { sniper: "🎯", swing: "🎣", scalper: "⚡", guardian: "🛡️" };
 const BLOCKSCOUT = "https://robinhoodchain.blockscout.com";
 
 function txSuffix(entry) {
@@ -34,15 +35,16 @@ function fmtUsd(n) {
 
 // Breed target hints for buy messages.
 function targetHint(breed) {
-  if (breed === "scalper") return "target +0.6%";
-  if (breed === "momentum") return "target +3%";
-  if (breed === "dipper") return "riding the rebound";
+  if (breed === "scalper") return "target +1.5%";
+  if (breed === "sniper") return "target +3%";
+  if (breed === "swing") return "riding the rebound";
+  if (breed === "guardian") return "holding steady";
   return "";
 }
 
 export function formatTrade(entry, pet) {
   const name = pet?.name || entry.petId;
-  const breed = pet?.breed || "?";
+  const breed = resolveBreed(pet?.breed) || pet?.breed || "?";
   const emoji = BREED_EMOJI[breed] || "🐾";
   const price = entry.quotedPriceUsd;
   if (entry.side === "buy") {

@@ -4,7 +4,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { petWallet } from "./wallet.js";
 import { getSignal } from "./signals.js";
-import { breeds } from "./breeds.js";
+import { breeds, resolveBreed, breedRisk } from "./breeds.js";
+import { perSideCostPct } from "./costs.js";
 import { loadState, saveState, logTrade, rollDay, openPosition, closePosition, markToMarket } from "./portfolio.js";
 import { isLive, executeTrade } from "./execution.js";
 
@@ -23,10 +24,19 @@ async function tickPet(pet) {
   const state = loadState(pet.id);
   rollDay(state);
 
-  const strategy = breeds[pet.breed];
-  if (!strategy) {
+  const breedName = resolveBreed(pet.breed);
+  if (!breedName) {
     console.error(`[${pet.id}] unknown breed ${pet.breed}, skipping`);
     return;
+  }
+  const strategy = breeds[breedName];
+  const risk = breedRisk(breedName);
+
+  // Cost model baseline: paper fills pay pool fee + slippage from here on.
+  // Recorded once so history before this timestamp is known to be gross P&L.
+  if (!state.costModelEnabledAt) {
+    state.costModelEnabledAt = new Date().toISOString();
+    state.costModelNote = "paper fills before this timestamp ignored pool fees and slippage (gross P&L)";
   }
 
   // Gather signals for diet tokens (whitelist only).
@@ -35,6 +45,9 @@ async function tickPet(pet) {
   for (const token of pet.diet) {
     const sig = await getSignal(token);
     if (sig) {
+      // Fee tier: diet entries may carry feeBps (uni v3 fee tier of the pool);
+      // the cost model falls back to 30 bps when unknown.
+      if (token.feeBps != null) sig.feeBps = token.feeBps;
       signals.push({ token, sig });
       priceByAddress[token.address.toLowerCase()] = sig.priceUsd;
       priceByAddress[token.address] = sig.priceUsd;
@@ -44,7 +57,7 @@ async function tickPet(pet) {
   // Daily loss cutoff: pet sleeps for the rest of the day.
   const { unrealizedUsd } = markToMarket(state, priceByAddress);
   const dayPnl = state.dailyPnl.realizedUsd + unrealizedUsd;
-  const maxLossUsd = -(pet.maxDailyLossPct / 100) * pet.capUsd;
+  const maxLossUsd = -(pet.maxDailyLossPct * risk.dailyLossFactor / 100) * pet.capUsd;
   if (!state.sleeping && dayPnl <= maxLossUsd) {
     state.sleeping = true;
     console.log(`[${pet.id}] daily loss cutoff hit (${dayPnl.toFixed(2)} USD), pet is sleeping`);
@@ -60,7 +73,7 @@ async function tickPet(pet) {
       if (pos) continue; // one position per token
       if (sig.liquidityUsd < MIN_LIQUIDITY_USD) continue;
       const openExposure = Object.values(state.positions).reduce((s, p) => s + p.sizeUsd, 0);
-      const sizeUsd = Math.min(pet.aggression * pet.capUsd, pet.capUsd - openExposure);
+      const sizeUsd = Math.min(pet.aggression * risk.sizeFactor * pet.capUsd, pet.capUsd - openExposure);
       if (sizeUsd < 1) continue;
       if (isLive(pet)) {
         // LIVE PATH: execution.js re-checks all risk rails and sends the swap.
@@ -73,11 +86,15 @@ async function tickPet(pet) {
         }
         continue;
       }
-      openPosition(state, token, sizeUsd, sig.priceUsd);
+      // Cost model: paper buys fill at the quoted price plus fee + slippage.
+      const buyCostPct = perSideCostPct(pet, sig);
+      const buyFillPrice = sig.priceUsd * (1 + buyCostPct / 100);
+      openPosition(state, token, sizeUsd, buyFillPrice);
       const entry = {
         ts: new Date().toISOString(), mode: "paper", petId: pet.id, wallet: address,
         side: "buy", token: token.symbol, tokenAddress: token.address,
         sizeUsd: +sizeUsd.toFixed(2), quotedPriceUsd: sig.priceUsd,
+        fillPriceUsd: +buyFillPrice.toFixed(6), costPctPerSide: +buyCostPct.toFixed(3),
         pairAddress: sig.pairAddress, reason: decision.reason,
       };
       logTrade(pet.id, entry);
@@ -94,11 +111,15 @@ async function tickPet(pet) {
         }
         continue;
       }
-      const realized = closePosition(state, token.address, sig.priceUsd);
+      // Cost model: paper sells fill at the quoted price minus fee + slippage.
+      const sellCostPct = perSideCostPct(pet, sig);
+      const sellFillPrice = sig.priceUsd * (1 - sellCostPct / 100);
+      const realized = closePosition(state, token.address, sellFillPrice);
       const entry = {
         ts: new Date().toISOString(), mode: "paper", petId: pet.id, wallet: address,
         side: "sell", token: token.symbol, tokenAddress: token.address,
-        sizeUsd: +(pos.qty * sig.priceUsd).toFixed(2), quotedPriceUsd: sig.priceUsd,
+        sizeUsd: +(pos.qty * sellFillPrice).toFixed(2), quotedPriceUsd: sig.priceUsd,
+        fillPriceUsd: +sellFillPrice.toFixed(6), costPctPerSide: +sellCostPct.toFixed(3),
         realizedPnlUsd: +realized.toFixed(4), pairAddress: sig.pairAddress, reason: decision.reason,
       };
       logTrade(pet.id, entry);

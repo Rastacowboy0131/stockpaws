@@ -12,10 +12,25 @@ liveTrading:true flag.
   path `m/44'/60'/0'/0/<hash(petId)>`. Signers connect to the Robinhood Chain RPC but never sign.
 - `src/signals.js` - price/volume signals for a pet's diet tokens from the dexscreener API,
   cached with a 60s floor so we never poll faster than once per minute per token.
-- `src/breeds.js` - strategy per breed:
-  - `momentum`: buy on positive 1h price plus volume move, 1.5% stop, 3% take profit.
-  - `dipper`: buy a diet token down X% (default 3%) on 6h, hold for mean reversion, 6% hard stop.
-  - `scalper`: quick in/out on 5m volatility, 0.5% stop / 0.6% target / timeout exit.
+- `src/breeds.js` - strategy per breed (names match the site characters one to one):
+  - `scalper` (Waffles): quick in/out on 5m volatility, fee-aware: profit target is at least
+    +1.5% (and always >= 1.8x the round-trip cost), stop widened proportionally, plus a
+    min-volatility gate (no scalping pools that moved less than the round-trip cost in the
+    last hour).
+  - `guardian` (Scout): conservative defensive allocator. Big-cap diet bias, position sizes
+    capped at HALF of aggression*cap, daily loss cutoff at HALF of maxDailyLossPct, high
+    entry bar (steady h6/h24 uptrend with volume, not overheated), prefers holding (+5%
+    target after a long minimum hold, exits only on hard stop or clear trend break).
+  - `swing` (Moss, was `dipper`): buy a diet token down X% (default 3%) on 6h, hold for mean
+    reversion, 6% hard stop.
+  - `sniper` (Vix, was `momentum`): buy confirmed momentum (h1 >= 1.5% with volume and
+    positive m5), never chases: refuses entries already extended more than 2% above the
+    short-term baseline. 1.5% stop, 3% take profit.
+  - Old names `dipper` and `momentum` are accepted as aliases and mapped automatically.
+- `src/costs.js` - paper cost model: pool fee (default 30 bps per side, override per diet
+  token via `feeBps`) plus slippage (default 0.1% per side, override per pet via
+  `costSlippagePct`). Paper buys fill above quote, sells below, so paper P&L approximates
+  live net P&L. Each state file records `costModelEnabledAt`.
 - `src/portfolio.js` - paper positions, mark to market per tick, realized and unrealized P&L,
   daily loss tracking. State persists to `state/<petId>.json`.
 - `src/engine.js` - the tick loop. Risk rails: max position = aggression * capUsd, total
@@ -35,7 +50,7 @@ liveTrading:true flag.
 {
   "id": "pixel",
   "name": "Pixel",
-  "breed": "momentum | dipper | scalper",
+  "breed": "scalper | guardian | swing | sniper",
   "live": true,
   "liveTrading": false,
   "funder": "0xYourWalletThatFundedThePet",

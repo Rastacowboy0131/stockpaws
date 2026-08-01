@@ -1,0 +1,19 @@
+{
+  "id": "moss",
+  "name": "Moss",
+  "breed": "swing",
+  "live": true,
+  "liveTrading": false,
+  "funder": null,
+  "slippagePct": 1,
+  "aggression": 0.3,
+  "patience": 10,
+  "capUsd": 400,
+  "maxDailyLossPct": 5,
+  "params": {},
+  "diet": [
+    { "symbol": "GOOGL", "address": "0x2e0847E8910a9732eB3fb1bb4b70a580ADAD4FE3" },
+    { "symbol": "AMZN", "address": "0x12f190a9F9d7D37a250758b26824B97CE941bF54" },
+    { "symbol": "AAPL", "address": "0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9" }
+  ]
+}

@@ -16,6 +16,7 @@ import { Contract, parseEther, formatEther, formatUnits, MaxUint256 } from "ethe
 import { petWallet, getProvider } from "./wallet.js";
 import { getSignal } from "./signals.js";
 import { loadState, logTrade } from "./portfolio.js";
+import { breedRisk } from "./breeds.js";
 
 export const ADDR = {
   router: "0xCaf681a66D020601342297493863E78C959E5cb2",
@@ -133,8 +134,8 @@ export async function checkRails(pet, { side, token, sizeUsd, signal }) {
   if (!dietAddrs.includes(token.address.toLowerCase())) {
     throw new Error(`refused: ${token.symbol} (${token.address}) is not in ${pet.id}'s diet`);
   }
-  // 2. Max trade size from pet cap.
-  const maxTradeUsd = pet.aggression * pet.capUsd;
+  // 2. Max trade size from pet cap, scaled by breed risk (guardian trades half).
+  const maxTradeUsd = pet.aggression * breedRisk(pet.breed).sizeFactor * pet.capUsd;
   if (side === "buy" && sizeUsd > maxTradeUsd + 0.01) {
     throw new Error(`refused: trade $${sizeUsd.toFixed(2)} exceeds max $${maxTradeUsd.toFixed(2)} (aggression*cap)`);
   }

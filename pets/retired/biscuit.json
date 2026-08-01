@@ -2,7 +2,7 @@
   "id": "biscuit",
   "name": "Biscuit",
   "breed": "dipper",
-  "live": true,
+  "live": false,
   "aggression": 0.3,
   "patience": 10,
   "capUsd": 400,

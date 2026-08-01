@@ -1,0 +1,19 @@
+{
+  "id": "scout",
+  "name": "Scout",
+  "breed": "guardian",
+  "live": true,
+  "liveTrading": false,
+  "funder": null,
+  "slippagePct": 1,
+  "aggression": 0.2,
+  "patience": 15,
+  "capUsd": 500,
+  "maxDailyLossPct": 5,
+  "params": {},
+  "diet": [
+    { "symbol": "SPY", "address": "0x117cc2133c37B721F49dE2A7a74833232B3B4C0C" },
+    { "symbol": "MSFT", "address": "0xe93237C50D904957Cf27E7B1133b510C669c2e74" },
+    { "symbol": "NVDA", "address": "0xd0601CE157Db5bdC3162BbaC2a2C8aF5320D9EEC" }
+  ]
+}

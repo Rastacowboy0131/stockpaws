@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { petWallet } from "./wallet.js";
 import { loadState, markToMarket } from "./portfolio.js";
+import { resolveBreed } from "./breeds.js";
 
 const PETS_DIR = "pets";
 const TRADES_DIR = "trades";
@@ -40,7 +41,7 @@ for (const pet of pets) {
   out.pets.push({
     id: pet.id,
     name: pet.name,
-    breed: pet.breed,
+    breed: resolveBreed(pet.breed) || pet.breed,
     live: pet.live !== false,
     wallet: address,
     capUsd: pet.capUsd,

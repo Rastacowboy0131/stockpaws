@@ -44,9 +44,9 @@ function trade(petId, token, sizeUsd, movePct, holdOpen = false) {
   console.log(`seeded ${petId}: ${token.symbol} ${holdOpen ? "open position" : `${movePct}% round trip`}`);
 }
 
-trade("waffles", AAPL, 45, 0.62);
+trade("waffles", AAPL, 45, 1.6);
 trade("waffles", TSLA, 45, -0.5);
-trade("biscuit", MSFT, 120, 2.1);
-trade("biscuit", AAPL, 120, 0, true);
-trade("zoomer", TSLA, 150, 3.05);
-trade("zoomer", MSFT, 150, -1.5);
+trade("moss", MSFT, 120, 2.1);
+trade("moss", AAPL, 120, 0, true);
+trade("vix", TSLA, 150, 3.05);
+trade("scout", MSFT, 50, 1.2);

@@ -97,6 +97,10 @@ await t("live buy $30 AAPL, balance increases", async () => {
 // --- risk rails ---
 await expectRefusal("rail: oversize trade refused", () =>
   executeTrade({ pet, side: "buy", token: AAPL, sizeUsd: 100, signal: AAPL_SIGNAL }), "exceeds max");
+// guardian breed sizing: max trade is HALF of aggression*cap (0.2*200*0.5 = $20),
+// so a $30 buy that is fine for a scalper must be refused for a guardian.
+await expectRefusal("rail: guardian half-size cap enforced", () =>
+  executeTrade({ pet: { ...pet, breed: "guardian" }, side: "buy", token: AAPL, sizeUsd: 30, signal: AAPL_SIGNAL }), "exceeds max");
 await expectRefusal("rail: non-diet token refused", () =>
   executeTrade({ pet, side: "buy", token: NVDA, sizeUsd: 10, signal: { ...AAPL_SIGNAL, address: NVDA.address } }), "not in");
 await expectRefusal("rail: thin pool refused", () =>
