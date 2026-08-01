@@ -10,17 +10,13 @@ import fs from "node:fs";
 import path from "node:path";
 import { Contract, formatEther, parseEther, getAddress, isAddress, MaxUint256 } from "ethers";
 import { petWallet } from "./wallet.js";
-import { ADDR, wethContract, bestFeeTier, isLive } from "./execution.js";
+import { ADDR, wethContract, isLive, sellAllWithRetry } from "./execution.js";
 import { logTrade } from "./portfolio.js";
 
 const ERC20_ABI = [
   "function balanceOf(address) view returns (uint256)",
   "function allowance(address,address) view returns (uint256)",
   "function approve(address,uint256) returns (bool)",
-];
-const ROUTER_ABI = [
-  "function exactInputSingle((address tokenIn,address tokenOut,uint24 fee,address recipient,uint256 amountIn,uint256 amountOutMinimum,uint160 sqrtPriceLimitX96)) payable returns (uint256 amountOut)",
-  "function multicall(uint256 deadline, bytes[] data) payable returns (bytes[] results)",
 ];
 
 const GAS_HEADROOM = parseEther("0.0005");
@@ -46,34 +42,22 @@ export async function withdrawAll(petId) {
   const steps = [];
 
   // 1. Sell every open diet-token position back to WETH (live balances only).
-  const router = new Contract(ADDR.router, ROUTER_ABI, signer);
   for (const token of pet.diet || []) {
     const t = new Contract(token.address, ERC20_ABI, signer);
     const bal = await t.balanceOf(address); // live read, rebase safe
     if (bal === 0n) continue;
     // Rebase-safe: approve max (exact-amount approvals can fail transferFrom
-    // when the rebasing share math rounds), then re-read the balance right
-    // before the swap.
+    // when the rebasing share math rounds), then sell with the shared retry
+    // helper (handles share-math rounding reverts on full-balance sells).
     const allowance = await t.allowance(address, ADDR.router);
     if (allowance < bal) await (await t.approve(ADDR.router, MaxUint256)).wait();
     const amountIn = await t.balanceOf(address);
-    const { fee, amountOut: quoted } = await bestFeeTier(token.address, ADDR.weth, amountIn, provider);
-    const slippageBps = BigInt(Math.round((pet.slippagePct ?? 1) * 100));
-    const minOut = (quoted * (10000n - slippageBps)) / 10000n;
-    const params = {
-      tokenIn: token.address, tokenOut: ADDR.weth, fee,
-      recipient: address,
-      amountIn, amountOutMinimum: minOut, sqrtPriceLimitX96: 0n,
-    };
-    const deadline = Math.floor(Date.now() / 1000) + 120;
-    const tx = await router.multicall(deadline, [router.interface.encodeFunctionData("exactInputSingle", [params])]);
-    const rc = await tx.wait();
-    if (rc.status !== 1) throw new Error(`sell of ${token.symbol} failed: ${tx.hash}`);
-    steps.push({ step: "sell", token: token.symbol, txHash: tx.hash });
+    const result = await sellAllWithRetry(signer, t, token.address, amountIn, pet.slippagePct ?? 1);
+    steps.push({ step: "sell", token: token.symbol, txHash: result.txHash });
     logTrade(petId, {
       ts: new Date().toISOString(), mode: "live", petId, wallet: address,
       side: "sell", token: token.symbol, tokenAddress: token.address,
-      txHash: tx.hash, reason: "withdraw-all liquidation",
+      txHash: result.txHash, reason: "withdraw-all liquidation",
     });
   }
 

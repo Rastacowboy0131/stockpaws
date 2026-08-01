@@ -55,7 +55,9 @@ export function formatTrade(entry, pet) {
   const pnl = entry.realizedPnlUsd ?? 0;
   const sign = pnl >= 0 ? "+" : "-";
   const mood = pnl >= 0 ? "😸" : "😿";
-  return `🐾 ${name} (${breed}) sold ${entry.token} @ ${price}, ${sign}$${fmtUsd(pnl)} ${mood} (${entry.reason})${txSuffix(entry)}`;
+  const at = price != null ? ` @ ${price}` : "";
+  const pnlPart = entry.realizedPnlUsd != null ? `, ${sign}$${fmtUsd(pnl)} ${mood}` : "";
+  return `🐾 ${name} (${breed}) sold ${entry.token}${at}${pnlPart} (${entry.reason})${txSuffix(entry)}`;
 }
 
 function readAllTrades() {

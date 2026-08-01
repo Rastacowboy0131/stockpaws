@@ -42,7 +42,10 @@ function ensureTable() {
          state jsonb,
          updated_at timestamptz NOT NULL DEFAULT now()
        )`
-    );
+    ).catch((e) => {
+      tableReady = null; // do not cache failures; retry on next request
+      throw e;
+    });
   }
   return tableReady;
 }

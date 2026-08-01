@@ -17,7 +17,11 @@ export function loadState(petId) {
 
 export function saveState(state) {
   fs.mkdirSync(STATE_DIR, { recursive: true });
-  fs.writeFileSync(path.join(STATE_DIR, `${state.petId}.json`), JSON.stringify(state, null, 2));
+  // Atomic write: crash mid-write must never corrupt the state file.
+  const file = path.join(STATE_DIR, `${state.petId}.json`);
+  const tmp = `${file}.tmp`;
+  fs.writeFileSync(tmp, JSON.stringify(state, null, 2));
+  fs.renameSync(tmp, file);
 }
 
 export function logTrade(petId, entry) {

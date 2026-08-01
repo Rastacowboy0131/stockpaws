@@ -44,11 +44,17 @@ export async function getSignal(token) {
     }
   }
 
+  // Guard against garbage: a NaN price would poison P&L state downstream.
+  const px = pair ? parseFloat(pair.priceUsd) : NaN;
+  if (pair && !Number.isFinite(px)) {
+    console.error(`signal for ${token.symbol}: non-numeric priceUsd ${JSON.stringify(pair.priceUsd)}, ignoring pair`);
+    pair = null;
+  }
   const signal = pair
     ? {
         symbol: token.symbol,
         address: token.address,
-        priceUsd: parseFloat(pair.priceUsd),
+        priceUsd: px,
         priceChange: pair.priceChange || {},
         volume: pair.volume || {},
         txns: pair.txns || {},

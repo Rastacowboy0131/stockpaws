@@ -205,6 +205,38 @@ async function swapExactInputSingle(signer, { tokenIn, tokenOut, amountIn, slipp
   return { txHash: tx.hash, fee, quoted, amountOutMinimum, receipt };
 }
 
+// Sell the full live balance of a rebasing token, tolerating share-math
+// rounding: transferFrom(fullBalance) can convert to shares rounding UP and
+// exceed held shares, reverting intermittently. Strategy: try the fresh
+// balance, then retry shaving a microscopic dust amount (1 part in 1e6).
+// Returns the swap result plus amountInUsed.
+export async function sellAllWithRetry(signer, tokenC, tokenAddr, amountIn, slippagePct) {
+  const attempts = [
+    amountIn,
+    null, // fresh re-read
+    null, // fresh re-read minus dust
+  ];
+  let lastErr;
+  for (let i = 0; i < attempts.length; i++) {
+    let amt = attempts[i];
+    if (amt == null) {
+      const fresh = await tokenC.balanceOf(signer.address);
+      if (fresh === 0n) throw lastErr || new Error("balance went to zero");
+      amt = i === 2 ? fresh - fresh / 1_000_000n - 1n : fresh;
+      if (amt <= 0n) throw lastErr || new Error("balance too small to sell");
+    }
+    try {
+      const result = await swapExactInputSingle(signer, {
+        tokenIn: tokenAddr, tokenOut: ADDR.weth, amountIn: amt, slippagePct,
+      });
+      return { ...result, amountInUsed: amt };
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  throw lastErr;
+}
+
 // --- public entry point ------------------------------------------------------
 
 // executeTrade({ pet, side: "buy"|"sell", token, sizeUsd, signal?, reason? })
@@ -238,9 +270,8 @@ export async function executeTrade({ pet, side, token, sizeUsd, signal, reason }
     if (amountIn === 0n) throw new Error(`refused: no live ${token.symbol} balance to sell`);
     const weth = wethContract(provider);
     const before = await weth.balanceOf(address);
-    result = await swapExactInputSingle(signer, {
-      tokenIn: token.address, tokenOut: ADDR.weth, amountIn, slippagePct,
-    });
+    result = await sellAllWithRetry(signer, tokenC, token.address, amountIn, slippagePct);
+    amountIn = result.amountInUsed;
     const after = await weth.balanceOf(address);
     amountOut = after - before;
   } else {

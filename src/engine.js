@@ -81,6 +81,7 @@ async function tickPet(pet) {
         pairAddress: sig.pairAddress, reason: decision.reason,
       };
       logTrade(pet.id, entry);
+      saveState(state); // persist immediately so a crash mid-tick cannot desync log vs state
       console.log(`[${pet.id}] PAPER BUY ${token.symbol} $${entry.sizeUsd} @ ${sig.priceUsd} :: ${decision.reason}`);
     } else if (decision.side === "sell" && pos) {
       if (isLive(pet)) {
@@ -101,6 +102,7 @@ async function tickPet(pet) {
         realizedPnlUsd: +realized.toFixed(4), pairAddress: sig.pairAddress, reason: decision.reason,
       };
       logTrade(pet.id, entry);
+      saveState(state); // persist immediately so a crash mid-tick cannot desync log vs state
       console.log(`[${pet.id}] PAPER SELL ${token.symbol} @ ${sig.priceUsd} pnl=${realized.toFixed(4)} :: ${decision.reason}`);
     }
   }
