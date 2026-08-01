@@ -1,8 +1,10 @@
 # stockpaws
 
 Virtual pets whose personality is a trading strategy. Each pet has its own EVM wallet
-on Robinhood Chain (chainId 46896) and trades RH tokenized stocks. Everything is paper
-trade only: no transactions are ever sent, no keys are funded.
+on Robinhood Chain (chainId 4663, RPC https://rpc.mainnet.chain.robinhood.com) and trades
+RH tokenized stocks. Default mode is paper: no transactions are sent, no keys are funded.
+Phase 3 adds a real execution layer, hard-gated behind EXECUTION_MODE=live plus a per-pet
+liveTrading:true flag.
 
 ## Architecture
 
@@ -35,6 +37,9 @@ trade only: no transactions are ever sent, no keys are funded.
   "name": "Pixel",
   "breed": "momentum | dipper | scalper",
   "live": true,
+  "liveTrading": false,
+  "funder": "0xYourWalletThatFundedThePet",
+  "slippagePct": 1,
   "aggression": 0.2,
   "patience": 2,
   "capUsd": 500,
@@ -80,14 +85,70 @@ node --env-file=.env src/export-web.js   # writes web/data.json
 cd web && python3 -m http.server 8080    # or any static server
 ```
 
-## Later (real execution) would add
+## Live execution layer (phase 3)
 
-- Uniswap v3 router integration on Robinhood Chain: quoting via QuoterV2, exactInputSingle
-  swaps with slippage limits, USDG as the quote asset.
-- Funding flow and balance checks per pet wallet, gas management.
-- Execution safety: tx simulation before send, nonce management, retry and revert handling,
-  per-trade and per-day hard caps enforced on chain balances, kill switch.
-- Better signals: candle history (dexscreener only gives point-in-time m5/h1/h6/h24 deltas),
-  so real execution should record its own price series for real momentum and volatility measures.
-- Slippage-aware sizing against pool liquidity, and accounting for the 24/5 tokenized
-  stock market schedule (pairs go quiet on weekends).
+- `src/execution.js` - real Uniswap V3 swaps on Robinhood Chain. Verified addresses
+  (all confirmed onchain, router.factory() and quoter.factory() match):
+  - SwapRouter02 `0xCaf681a66D020601342297493863E78C959E5cb2` (NOTE: SwapRouter02, so
+    exactInputSingle has no deadline field; deadlines go through `multicall(deadline, data)`)
+  - Factory `0x1f7d7550B1b028f7571E69A784071F0205FD2EfA`
+  - QuoterV2 `0x0269F8b86bB3C1e927DaCEDb72f3463Ef6D26F61`
+  - WETH9 `0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73`
+  - USDG `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168` (6 decimals, used for ETH/USD pricing)
+- Buy path: size in USD -> ETH via the WETH/USDG 500bps pool -> wrap ETH keeping a gas
+  reserve -> quote through QuoterV2 across fee tiers 100/500/3000/10000 picking the best
+  output -> exactInputSingle with a slippage-guarded minimum out (default 1%, per-pet
+  `slippagePct`) -> wait for receipt, log tx hash.
+- Sell path: reads the LIVE token balance right before the swap. Stock tokens share a
+  rebasing implementation (stock splits change balances), so quantities are never cached.
+- Risk rails enforced inside `executeTrade` itself, independent of the strategy layer:
+  diet whitelist checked against the actual token address, max trade size
+  (aggression * capUsd), $5k pool liquidity floor from the signal layer, and the daily
+  loss cutoff (sleeping pets cannot buy).
+- `src/withdraw.js` - withdraw-all: sells every open position to WETH, unwraps, sends all
+  ETH to the pet's recorded `funder` address. There is no destination override; if the pet
+  JSON has no valid `funder`, the withdrawal is refused.
+- Feed messages for live trades include the Blockscout tx link
+  (`https://robinhoodchain.blockscout.com/tx/<hash>`).
+
+## Fork tests
+
+```
+./test/fork.sh    # starts an anvil fork of RH mainnet and runs test/fork.test.js
+```
+
+Proves on a fork: wrap ETH, live buy AAPL (balance increases), all four risk rails plus
+the liveTrading gate refuse correctly, live sell back to WETH, withdraw-all reaches the
+funder. Needs a working anvil; on old glibc hosts use the musl build
+(`foundry_stable_alpine_amd64.tar.gz`) and point `ANVIL_BIN` at it. No real transactions
+are ever sent by the tests.
+
+## Go-live procedure (real money)
+
+Read this whole section before funding anything.
+
+**Custody warning:** pet wallets are derived from `MASTER_SEED`. Whoever holds that seed
+phrase holds every pet's funds. Treat the production seed like a hot-wallet key: generate
+it fresh (never reuse the dev/test seed), store it only in the production `.env` (mode 600)
+plus one offline backup, and never commit it. This is experimental software trading thin
+onchain stock-token pools; assume the entire balance can be lost.
+
+1. Set a fresh `MASTER_SEED` in the production `.env`. Confirm `RPC_URL` is
+   `https://rpc.mainnet.chain.robinhood.com` (the `rpc.robinhoodchain.com` host fails TLS).
+2. Create the pet with a funder recorded:
+   `node --env-file=.env src/cli.js create-pet --name Waffles --breed scalper --cap 150 --funder 0xYourWallet`
+   The funder is the ONLY address withdrawals can ever go to.
+3. Send a small amount of ETH to the pet's wallet address (printed at creation, also in
+   list-pets). Recommended at launch: $100 to $200 per pet, no more. Keep `capUsd` at or
+   below what you funded.
+4. Flip the switches: set `"liveTrading": true` in `pets/<id>.json` and `EXECUTION_MODE=live`
+   in the environment the tick runner uses. Both are required; either one missing means
+   paper mode.
+5. The tick runner (`src/tick.js` on cron, or `src/engine.js`) now routes that pet's
+   decisions through the live execution path. Watch the feed and
+   `trades/<id>.jsonl` for tx hashes; every live trade links to Blockscout.
+6. To pull funds out: `node --env-file=.env src/withdraw.js <petId>` liquidates everything
+   and sends the ETH to the recorded funder.
+
+Kill switch: unset `EXECUTION_MODE` (or set anything other than `live`) and every pet
+instantly reverts to paper, no matter what the pet files say.

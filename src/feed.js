@@ -9,6 +9,11 @@ const PETS_DIR = "pets";
 const CURSOR_FILE = path.join("state", "feed-cursor.json");
 
 const BREED_EMOJI = { momentum: "🚀", dipper: "🎣", scalper: "⚡" };
+const BLOCKSCOUT = "https://robinhoodchain.blockscout.com";
+
+function txSuffix(entry) {
+  return entry.mode === "live" && entry.txHash ? ` | <${BLOCKSCOUT}/tx/${entry.txHash}>` : "";
+}
 
 function loadPetMap() {
   const map = {};
@@ -42,12 +47,15 @@ export function formatTrade(entry, pet) {
   const price = entry.quotedPriceUsd;
   if (entry.side === "buy") {
     const hint = targetHint(breed);
-    return `🐾 ${name} (${breed}) bought $${fmtUsd(entry.sizeUsd)} ${entry.token} @ ${price}${hint ? `, ${hint}` : ""} ${emoji}`;
+    return `🐾 ${name} (${breed}) bought $${fmtUsd(entry.sizeUsd)} ${entry.token} @ ${price}${hint ? `, ${hint}` : ""} ${emoji}${txSuffix(entry)}`;
+  }
+  if (entry.side === "withdraw") {
+    return `🐾 ${name} withdrew everything to the funder wallet 👋${txSuffix(entry)}`;
   }
   const pnl = entry.realizedPnlUsd ?? 0;
   const sign = pnl >= 0 ? "+" : "-";
   const mood = pnl >= 0 ? "😸" : "😿";
-  return `🐾 ${name} (${breed}) sold ${entry.token} @ ${price}, ${sign}$${fmtUsd(pnl)} ${mood} (${entry.reason})`;
+  return `🐾 ${name} (${breed}) sold ${entry.token} @ ${price}, ${sign}$${fmtUsd(pnl)} ${mood} (${entry.reason})${txSuffix(entry)}`;
 }
 
 function readAllTrades() {
