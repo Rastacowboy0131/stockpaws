@@ -1,0 +1,16 @@
+{
+  "name": "agent-pets",
+  "version": "1.0.0",
+  "description": "virtual pets that paper-trade tokenized stocks on Robinhood Chain",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "ethers": "^6.17.0"
+  }
+}
