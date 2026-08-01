@@ -119,8 +119,21 @@
       const b = document.createElement("button");
       b.type = "button";
       b.className = "wallet-opt";
-      const ic = entry.info.icon ? `<img src="${entry.info.icon}" alt="">` : `<span style="font-size:1.4rem">🦊</span>`;
-      b.innerHTML = `${ic}<span>${entry.info.name}</span>`;
+      // EIP-6963 info comes from arbitrary extensions: never innerHTML it raw.
+      if (entry.info.icon) {
+        const img = document.createElement("img");
+        img.src = entry.info.icon;
+        img.alt = "";
+        b.appendChild(img);
+      } else {
+        const s = document.createElement("span");
+        s.style.fontSize = "1.4rem";
+        s.textContent = "🦊";
+        b.appendChild(s);
+      }
+      const nameSpan = document.createElement("span");
+      nameSpan.textContent = entry.info.name;
+      b.appendChild(nameSpan);
       b.addEventListener("click", () => connectWith(entry));
       walletList.appendChild(b);
     });

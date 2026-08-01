@@ -65,7 +65,12 @@
   }, true);
 
   // ---------- stock brand marks (real logos) ----------
+  // esc(): anything that can come back from cloud/local state goes through
+  // here before touching innerHTML (stored-XSS guard; state rows could be
+  // written by a replayed session).
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   function chip(tk, size) {
+    tk = esc(tk);
     const L = (window.SP_LOGOS || {})[tk];
     const dim = size ? `width:${size}px;height:${size}px;` : "";
     if (!L) return `<span class="tchip" style="${dim}background:#A44DE8">${tk[0]}</span>`;
@@ -185,14 +190,22 @@
   async function loadFor(addr) {
     owner = addr;
     const local = loadLocal(addr);
-    S = Object.assign({}, DEFAULT_STATE, local || {});
+    S = sanitizeState(Object.assign({}, DEFAULT_STATE, local || {}));
     renderDesk(); // instant paint from cache
     const cloud = await apiCall("load");
     if (cloud && cloud.state && owner === addr) {
-      S = Object.assign({}, DEFAULT_STATE, cloud.state); // cloud wins (cross-device truth)
+      S = sanitizeState(Object.assign({}, DEFAULT_STATE, cloud.state)); // cloud wins (cross-device truth)
       saveLocal(addr, S);
       renderDesk();
     }
+  }
+
+  // State from storage is untrusted: keep the desk from crashing (or worse)
+  // on a corrupted/hostile row. Unknown pet ids fall back to the default.
+  function sanitizeState(s) {
+    if (!PETS[s.pet]) s.pet = DEFAULT_STATE.pet;
+    if (!Array.isArray(s.trades)) s.trades = [];
+    return s;
   }
 
   function lock() {
@@ -250,7 +263,8 @@
     S.trades.slice(0, 6).forEach((t) => {
       const li = document.createElement("li");
       const cls = t.pl >= 0 ? "pos" : "neg";
-      li.innerHTML = `${chip(t.tk)}<span class="tinfo"><span class="tk">${t.tk}</span><span class="dt">${t.side} ${t.qty} @ ${t.px}</span></span><span class="tpl ${cls}">${t.pl >= 0 ? "+" : "-"}$${Math.abs(t.pl).toFixed(2)}</span><span class="tpaw">🐾</span>`;
+      const pl = Number(t.pl) || 0;
+      li.innerHTML = `${chip(t.tk)}<span class="tinfo"><span class="tk">${esc(t.tk)}</span><span class="dt">${esc(t.side)} ${esc(t.qty)} @ ${esc(t.px)}</span></span><span class="tpl ${cls}">${pl >= 0 ? "+" : "-"}$${Math.abs(pl).toFixed(2)}</span><span class="tpaw">🐾</span>`;
       ul.appendChild(li);
     });
   }

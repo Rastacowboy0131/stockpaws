@@ -118,6 +118,8 @@ module.exports = async (req, res) => {
 
     return res.status(400).json({ error: "unknown action" });
   } catch (e) {
-    return res.status(500).json({ error: "storage_error", detail: e.message });
+    console.error("storage_error:", e && e.message);
+    // do not echo e.message: DB errors can leak connection details
+    return res.status(500).json({ error: "storage_error" });
   }
 };
