@@ -1,0 +1,21 @@
+{
+  "id": "biscuit",
+  "name": "Biscuit",
+  "breed": "dipper",
+  "live": true,
+  "aggression": 0.3,
+  "patience": 10,
+  "capUsd": 400,
+  "maxDailyLossPct": 5,
+  "params": {},
+  "diet": [
+    {
+      "symbol": "MSFT",
+      "address": "0xe93237C50D904957Cf27E7B1133b510C669c2e74"
+    },
+    {
+      "symbol": "AAPL",
+      "address": "0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9"
+    }
+  ]
+}

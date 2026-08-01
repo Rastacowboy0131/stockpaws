@@ -1,0 +1,21 @@
+{
+  "id": "waffles",
+  "name": "Waffles",
+  "breed": "scalper",
+  "live": true,
+  "aggression": 0.15,
+  "patience": 2,
+  "capUsd": 300,
+  "maxDailyLossPct": 5,
+  "params": {},
+  "diet": [
+    {
+      "symbol": "AAPL",
+      "address": "0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9"
+    },
+    {
+      "symbol": "TSLA",
+      "address": "0x322F0929c4625eD5bAd873c95208D54E1c003b2d"
+    }
+  ]
+}

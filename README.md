@@ -1,7 +1,7 @@
-# agent-pets
+# stockpaws
 
 Virtual pets whose personality is a trading strategy. Each pet has its own EVM wallet
-on Robinhood Chain (chainId 46896) and trades RH tokenized stocks. Phase 1 is paper
+on Robinhood Chain (chainId 46896) and trades RH tokenized stocks. Everything is paper
 trade only: no transactions are ever sent, no keys are funded.
 
 ## Architecture
@@ -21,6 +21,11 @@ trade only: no transactions are ever sent, no keys are funded.
   loss cutoff (maxDailyLossPct of capUsd) that puts the pet to sleep until the next day
   (sleeping pets can close positions but not open new ones).
 - Intended trades are appended to `trades/<petId>.jsonl`.
+- `src/tick.js` - one-shot tick runner for cron/heartbeat: evaluates all live pets once and exits.
+  Skips if a tick already ran within the same minute (guard in `state/tick-lock.json`).
+- `src/cli.js` - pet management: create-pet, list-pets, retire-pet.
+- `src/feed.js` - formats trade log entries into short Discord-ready messages.
+- `src/export-web.js` - dumps pets, P&L, and recent trades to `web/data.json` for the static site in `web/`.
 
 ## Pet config schema (pets/*.json)
 
@@ -47,12 +52,35 @@ trade only: no transactions are ever sent, no keys are funded.
 
 ```
 cp .env.example .env   # then set your own throwaway MASTER_SEED
-node src/engine.js                 # loop forever, tick every TICK_MINUTES
-node src/engine.js --once          # single tick
-node --env-file=.env src/engine.js
+node --env-file=.env src/tick.js       # single tick, cron-friendly
+node --env-file=.env src/engine.js     # loop forever, tick every TICK_MINUTES
+node --env-file=.env src/engine.js --once
 ```
 
-## Phase 2 (real execution) will add
+## Pet management
+
+```
+node --env-file=.env src/cli.js create-pet --name Waffles --breed scalper --aggression 0.15 --patience 2 --cap 300 --diet AAPL,TSLA
+node --env-file=.env src/cli.js list-pets
+node --env-file=.env src/cli.js retire-pet waffles
+```
+
+## Trade feed
+
+```
+node src/feed.js --since 2026-08-01T00:00:00Z   # or omit --since to use the saved cursor
+```
+
+Prints Discord-ready lines for new trades and advances `state/feed-cursor.json`.
+
+## Web dashboard
+
+```
+node --env-file=.env src/export-web.js   # writes web/data.json
+cd web && python3 -m http.server 8080    # or any static server
+```
+
+## Later (real execution) would add
 
 - Uniswap v3 router integration on Robinhood Chain: quoting via QuoterV2, exactInputSingle
   swaps with slippage limits, USDG as the quote asset.
@@ -60,6 +88,6 @@ node --env-file=.env src/engine.js
 - Execution safety: tx simulation before send, nonce management, retry and revert handling,
   per-trade and per-day hard caps enforced on chain balances, kill switch.
 - Better signals: candle history (dexscreener only gives point-in-time m5/h1/h6/h24 deltas),
-  so phase 2 should record its own price series for real momentum and volatility measures.
+  so real execution should record its own price series for real momentum and volatility measures.
 - Slippage-aware sizing against pool liquidity, and accounting for the 24/5 tokenized
   stock market schedule (pairs go quiet on weekends).

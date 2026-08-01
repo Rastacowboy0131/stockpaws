@@ -103,17 +103,22 @@ async function tick() {
   }
 }
 
-const intervalMin = parseFloat(process.env.TICK_MINUTES || "5");
-const once = process.argv.includes("--once");
-const ticks = process.argv.includes("--ticks") ? parseInt(process.argv[process.argv.indexOf("--ticks") + 1], 10) : null;
+export { tick, loadPets };
 
-console.log(`agent-pets engine, PAPER MODE, tick every ${intervalMin} min`);
-await tick();
-if (!once) {
-  let count = 1;
-  const timer = setInterval(async () => {
-    await tick();
-    count++;
-    if (ticks && count >= ticks) { clearInterval(timer); console.log("done"); }
-  }, intervalMin * 60_000);
+const isMain = process.argv[1] && import.meta.url.endsWith(path.basename(process.argv[1])) && process.argv[1].endsWith("engine.js");
+if (isMain) {
+  const intervalMin = parseFloat(process.env.TICK_MINUTES || "5");
+  const once = process.argv.includes("--once");
+  const ticks = process.argv.includes("--ticks") ? parseInt(process.argv[process.argv.indexOf("--ticks") + 1], 10) : null;
+
+  console.log(`stockpaws engine, PAPER MODE, tick every ${intervalMin} min`);
+  await tick();
+  if (!once) {
+    let count = 1;
+    const timer = setInterval(async () => {
+      await tick();
+      count++;
+      if (ticks && count >= ticks) { clearInterval(timer); console.log("done"); }
+    }, intervalMin * 60_000);
+  }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "agent-pets",
+  "name": "stockpaws",
   "version": "1.0.0",
   "description": "virtual pets that paper-trade tokenized stocks on Robinhood Chain",
   "main": "index.js",

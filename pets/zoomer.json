@@ -1,0 +1,21 @@
+{
+  "id": "zoomer",
+  "name": "Zoomer",
+  "breed": "momentum",
+  "live": true,
+  "aggression": 0.25,
+  "patience": 5,
+  "capUsd": 600,
+  "maxDailyLossPct": 5,
+  "params": {},
+  "diet": [
+    {
+      "symbol": "TSLA",
+      "address": "0x322F0929c4625eD5bAd873c95208D54E1c003b2d"
+    },
+    {
+      "symbol": "MSFT",
+      "address": "0xe93237C50D904957Cf27E7B1133b510C669c2e74"
+    }
+  ]
+}

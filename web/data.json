@@ -1,0 +1,230 @@
+{
+  "generatedAt": "2026-08-01T01:08:55.378Z",
+  "chain": "robinhood",
+  "pets": [
+    {
+      "id": "biscuit",
+      "name": "Biscuit",
+      "breed": "dipper",
+      "live": true,
+      "wallet": "0xfafC25C7ca3AdE5490D422E62c2b0eA3f5BD1CC9",
+      "capUsd": 400,
+      "balanceUsd": 402.52,
+      "realizedPnlUsd": 2.52,
+      "unrealizedPnlUsd": 0,
+      "dayPnlUsd": 2.52,
+      "mood": "happy",
+      "openPositions": [
+        {
+          "symbol": "AAPL",
+          "address": "0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9",
+          "sizeUsd": 120,
+          "qty": 0.3896356906292616,
+          "entryPrice": 307.98,
+          "openedAt": "2026-08-01T01:08:46.122Z"
+        }
+      ],
+      "lastTickAt": "2026-08-01T01:08:54.899Z",
+      "trades": [
+        {
+          "ts": "2026-08-01T01:08:46.122Z",
+          "mode": "paper",
+          "petId": "biscuit",
+          "wallet": "0xfafC25C7ca3AdE5490D422E62c2b0eA3f5BD1CC9",
+          "side": "buy",
+          "token": "AAPL",
+          "tokenAddress": "0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9",
+          "sizeUsd": 120,
+          "quotedPriceUsd": 307.98,
+          "pairAddress": "0xc748f4671a867db48b552f6b7650bf3255e05f80f00e3f7aad1b17ccb7898fdb",
+          "reason": "demo seed entry"
+        },
+        {
+          "ts": "2026-08-01T01:08:46.101Z",
+          "mode": "paper",
+          "petId": "biscuit",
+          "wallet": "0xfafC25C7ca3AdE5490D422E62c2b0eA3f5BD1CC9",
+          "side": "sell",
+          "token": "MSFT",
+          "tokenAddress": "0xe93237C50D904957Cf27E7B1133b510C669c2e74",
+          "sizeUsd": 122.52,
+          "quotedPriceUsd": 473.5092,
+          "realizedPnlUsd": 2.52,
+          "pairAddress": "0x9194a557b6a6bb2236b49ea7e2bbccec5d3eeb705aef00903be4b3de1d949579",
+          "reason": "demo seed exit: +2.1%"
+        },
+        {
+          "ts": "2026-08-01T01:08:46.101Z",
+          "mode": "paper",
+          "petId": "biscuit",
+          "wallet": "0xfafC25C7ca3AdE5490D422E62c2b0eA3f5BD1CC9",
+          "side": "buy",
+          "token": "MSFT",
+          "tokenAddress": "0xe93237C50D904957Cf27E7B1133b510C669c2e74",
+          "sizeUsd": 120,
+          "quotedPriceUsd": 463.77,
+          "pairAddress": "0x9194a557b6a6bb2236b49ea7e2bbccec5d3eeb705aef00903be4b3de1d949579",
+          "reason": "demo seed entry"
+        }
+      ]
+    },
+    {
+      "id": "pixel",
+      "name": "Pixel",
+      "breed": "scalper",
+      "live": true,
+      "wallet": "0x33F21831B4526e78A3fCbd614E0D45b1B91f40d0",
+      "capUsd": 500,
+      "balanceUsd": 500,
+      "realizedPnlUsd": 0,
+      "unrealizedPnlUsd": 0,
+      "dayPnlUsd": 0,
+      "mood": "neutral",
+      "openPositions": [],
+      "lastTickAt": "2026-08-01T01:08:54.940Z",
+      "trades": []
+    },
+    {
+      "id": "waffles",
+      "name": "Waffles",
+      "breed": "scalper",
+      "live": true,
+      "wallet": "0x12702f883A5C26ac24f4BD47874AaFb3789cD45b",
+      "capUsd": 300,
+      "balanceUsd": 300.05,
+      "realizedPnlUsd": 0.05,
+      "unrealizedPnlUsd": 0,
+      "dayPnlUsd": 0.05,
+      "mood": "neutral",
+      "openPositions": [],
+      "lastTickAt": "2026-08-01T01:08:54.962Z",
+      "trades": [
+        {
+          "ts": "2026-08-01T01:08:46.076Z",
+          "mode": "paper",
+          "petId": "waffles",
+          "wallet": "0x12702f883A5C26ac24f4BD47874AaFb3789cD45b",
+          "side": "sell",
+          "token": "TSLA",
+          "tokenAddress": "0x322F0929c4625eD5bAd873c95208D54E1c003b2d",
+          "sizeUsd": 44.77,
+          "quotedPriceUsd": 309.3455,
+          "realizedPnlUsd": -0.225,
+          "pairAddress": "0x8517f8071ae5b831b738052f12125e8e3d6c158b78728aa44ce3b25e5104d32e",
+          "reason": "demo seed exit: -0.5%"
+        },
+        {
+          "ts": "2026-08-01T01:08:46.076Z",
+          "mode": "paper",
+          "petId": "waffles",
+          "wallet": "0x12702f883A5C26ac24f4BD47874AaFb3789cD45b",
+          "side": "buy",
+          "token": "TSLA",
+          "tokenAddress": "0x322F0929c4625eD5bAd873c95208D54E1c003b2d",
+          "sizeUsd": 45,
+          "quotedPriceUsd": 310.9,
+          "pairAddress": "0x8517f8071ae5b831b738052f12125e8e3d6c158b78728aa44ce3b25e5104d32e",
+          "reason": "demo seed entry"
+        },
+        {
+          "ts": "2026-08-01T01:08:46.055Z",
+          "mode": "paper",
+          "petId": "waffles",
+          "wallet": "0x12702f883A5C26ac24f4BD47874AaFb3789cD45b",
+          "side": "sell",
+          "token": "AAPL",
+          "tokenAddress": "0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9",
+          "sizeUsd": 45.28,
+          "quotedPriceUsd": 309.8895,
+          "realizedPnlUsd": 0.279,
+          "pairAddress": "0xc748f4671a867db48b552f6b7650bf3255e05f80f00e3f7aad1b17ccb7898fdb",
+          "reason": "demo seed exit: +0.62%"
+        },
+        {
+          "ts": "2026-08-01T01:08:46.054Z",
+          "mode": "paper",
+          "petId": "waffles",
+          "wallet": "0x12702f883A5C26ac24f4BD47874AaFb3789cD45b",
+          "side": "buy",
+          "token": "AAPL",
+          "tokenAddress": "0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9",
+          "sizeUsd": 45,
+          "quotedPriceUsd": 307.98,
+          "pairAddress": "0xc748f4671a867db48b552f6b7650bf3255e05f80f00e3f7aad1b17ccb7898fdb",
+          "reason": "demo seed entry"
+        }
+      ]
+    },
+    {
+      "id": "zoomer",
+      "name": "Zoomer",
+      "breed": "momentum",
+      "live": true,
+      "wallet": "0xb2D121B3Cd3Febea444f7b82E5C8A5F377475eaF",
+      "capUsd": 600,
+      "balanceUsd": 602.33,
+      "realizedPnlUsd": 2.32,
+      "unrealizedPnlUsd": 0,
+      "dayPnlUsd": 2.32,
+      "mood": "happy",
+      "openPositions": [],
+      "lastTickAt": "2026-08-01T01:08:54.985Z",
+      "trades": [
+        {
+          "ts": "2026-08-01T01:08:46.157Z",
+          "mode": "paper",
+          "petId": "zoomer",
+          "wallet": "0xb2D121B3Cd3Febea444f7b82E5C8A5F377475eaF",
+          "side": "sell",
+          "token": "MSFT",
+          "tokenAddress": "0xe93237C50D904957Cf27E7B1133b510C669c2e74",
+          "sizeUsd": 147.75,
+          "quotedPriceUsd": 456.8134,
+          "realizedPnlUsd": -2.25,
+          "pairAddress": "0x9194a557b6a6bb2236b49ea7e2bbccec5d3eeb705aef00903be4b3de1d949579",
+          "reason": "demo seed exit: -1.5%"
+        },
+        {
+          "ts": "2026-08-01T01:08:46.157Z",
+          "mode": "paper",
+          "petId": "zoomer",
+          "wallet": "0xb2D121B3Cd3Febea444f7b82E5C8A5F377475eaF",
+          "side": "buy",
+          "token": "MSFT",
+          "tokenAddress": "0xe93237C50D904957Cf27E7B1133b510C669c2e74",
+          "sizeUsd": 150,
+          "quotedPriceUsd": 463.77,
+          "pairAddress": "0x9194a557b6a6bb2236b49ea7e2bbccec5d3eeb705aef00903be4b3de1d949579",
+          "reason": "demo seed entry"
+        },
+        {
+          "ts": "2026-08-01T01:08:46.140Z",
+          "mode": "paper",
+          "petId": "zoomer",
+          "wallet": "0xb2D121B3Cd3Febea444f7b82E5C8A5F377475eaF",
+          "side": "sell",
+          "token": "TSLA",
+          "tokenAddress": "0x322F0929c4625eD5bAd873c95208D54E1c003b2d",
+          "sizeUsd": 154.57,
+          "quotedPriceUsd": 320.3824,
+          "realizedPnlUsd": 4.575,
+          "pairAddress": "0x8517f8071ae5b831b738052f12125e8e3d6c158b78728aa44ce3b25e5104d32e",
+          "reason": "demo seed exit: +3.05%"
+        },
+        {
+          "ts": "2026-08-01T01:08:46.140Z",
+          "mode": "paper",
+          "petId": "zoomer",
+          "wallet": "0xb2D121B3Cd3Febea444f7b82E5C8A5F377475eaF",
+          "side": "buy",
+          "token": "TSLA",
+          "tokenAddress": "0x322F0929c4625eD5bAd873c95208D54E1c003b2d",
+          "sizeUsd": 150,
+          "quotedPriceUsd": 310.9,
+          "pairAddress": "0x8517f8071ae5b831b738052f12125e8e3d6c158b78728aa44ce3b25e5104d32e",
+          "reason": "demo seed entry"
+        }
+      ]
+    }
+  ]
+}

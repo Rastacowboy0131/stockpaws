@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>stockpaws</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #20242f;
+    --text: #e8eaf0;
+    --muted: #8a90a3;
+    --green: #4ade80;
+    --red: #f87171;
+    --accent: #a78bfa;
+    --border: #2a2e3d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, sans-serif;
+    min-height: 100vh;
+    padding: 24px;
+  }
+  header { max-width: 1100px; margin: 0 auto 24px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  h1 { font-size: 1.8rem; }
+  h1 .paw { display: inline-block; transform: rotate(-15deg); }
+  .sub { color: var(--muted); font-size: 0.9rem; }
+  .grid {
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px;
+  }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 18px; transition: transform .15s, background .15s;
+  }
+  .card:hover { transform: translateY(-3px); background: var(--card-hover); }
+  .card.retired { opacity: 0.55; }
+  .card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .mood { font-size: 2rem; }
+  .pet-name { font-size: 1.2rem; font-weight: 700; }
+  .breed {
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: .06em;
+    background: var(--accent); color: #14121f; border-radius: 999px; padding: 2px 10px; font-weight: 700;
+  }
+  .stats { display: flex; gap: 16px; margin: 10px 0 12px; }
+  .stat .label { color: var(--muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: .05em; }
+  .stat .value { font-size: 1.05rem; font-weight: 600; }
+  .pos { color: var(--green); } .neg { color: var(--red); }
+  .wallet { color: var(--muted); font-size: 0.72rem; font-family: ui-monospace, monospace; margin-bottom: 10px; word-break: break-all; }
+  .trades { border-top: 1px solid var(--border); padding-top: 10px; }
+  .trades h3 { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+  .trade { display: flex; justify-content: space-between; gap: 8px; font-size: 0.82rem; padding: 3px 0; }
+  .trade .t-left { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .trade a { color: var(--muted); text-decoration: none; font-size: 0.75rem; }
+  .trade a:hover { color: var(--accent); }
+  .empty { color: var(--muted); font-size: 0.82rem; font-style: italic; }
+  footer { max-width: 1100px; margin: 28px auto 0; color: var(--muted); font-size: 0.78rem; }
+</style>
+</head>
+<body>
+<header>
+  <h1><span class="paw">🐾</span> stockpaws</h1>
+  <span class="sub">virtual pets that paper-trade tokenized stocks · Robinhood Chain · <span id="generated"></span></span>
+</header>
+<div class="grid" id="grid"></div>
+<footer>Paper mode only. No real trades, no funded wallets. Prices via dexscreener.</footer>
+<script>
+const MOOD = { happy: "😸", neutral: "😺", sulking: "😾", sleeping: "😴" };
+const BLOCKSCOUT = "https://explorer.robinhoodchain.com"; // placeholder explorer base
+
+function fmt(n, sign) {
+  const s = (sign && n > 0 ? "+" : "") + (Math.abs(n) >= 1000 ? n.toFixed(0) : n.toFixed(2));
+  return "$" + s.replace("$", "");
+}
+function pnlClass(n) { return n > 0 ? "pos" : n < 0 ? "neg" : ""; }
+
+async function load() {
+  const res = await fetch("data.json?_=" + Date.now());
+  const data = await res.json();
+  document.getElementById("generated").textContent = "updated " + new Date(data.generatedAt).toLocaleString();
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  for (const pet of data.pets) {
+    const pnl = pet.realizedPnlUsd + pet.unrealizedPnlUsd;
+    const card = document.createElement("div");
+    card.className = "card" + (pet.live ? "" : " retired");
+    const tradesHtml = pet.trades.length
+      ? pet.trades.slice(0, 5).map(t => {
+          const pnlBit = t.side === "sell" && t.realizedPnlUsd != null
+            ? ` <span class="${pnlClass(t.realizedPnlUsd)}">${t.realizedPnlUsd >= 0 ? "+" : ""}${t.realizedPnlUsd.toFixed(2)}</span>` : "";
+          const link = t.pairAddress ? `<a href="${BLOCKSCOUT}/address/${t.pairAddress}" target="_blank" rel="noopener">↗</a>` : "";
+          return `<div class="trade"><span class="t-left">${t.side === "buy" ? "🟢" : "🔴"} ${t.side} $${t.sizeUsd} ${t.token} @ ${t.quotedPriceUsd}${pnlBit}</span>${link}</div>`;
+        }).join("")
+      : `<div class="empty">no trades yet, still sniffing the market</div>`;
+    card.innerHTML = `
+      <div class="card-head">
+        <span class="mood">${MOOD[pet.mood] || "😺"}</span>
+        <span class="pet-name">${pet.name}</span>
+        <span class="breed">${pet.breed}</span>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="label">Balance</div><div class="value">${fmt(pet.balanceUsd)}</div></div>
+        <div class="stat"><div class="label">P&L</div><div class="value ${pnlClass(pnl)}">${fmt(pnl, true)}</div></div>
+        <div class="stat"><div class="label">Today</div><div class="value ${pnlClass(pet.dayPnlUsd)}">${fmt(pet.dayPnlUsd, true)}</div></div>
+      </div>
+      <div class="wallet">${pet.wallet || ""}</div>
+      <div class="trades"><h3>Recent trades</h3>${tradesHtml}</div>`;
+    grid.appendChild(card);
+  }
+}
+load();
+</script>
+</body>
+</html>
