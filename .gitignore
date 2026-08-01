@@ -2,3 +2,6 @@ node_modules/
 .env
 state/
 trades/
+web/data.json
+web/.vercel/
+web/package-lock.json

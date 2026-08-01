@@ -1,0 +1,9 @@
+{
+  "name": "stockpaws",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {
+    "ethers": "^6.17.0",
+    "pg": "^8.22.0"
+  }
+}
