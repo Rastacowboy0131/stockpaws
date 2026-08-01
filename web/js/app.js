@@ -64,21 +64,23 @@
     if (e.target.closest("button, .btn, .bn-item")) SFX.click();
   }, true);
 
-  // ---------- ticker brand colors ----------
-  const TK_COLOR = {
-    NVDA:"#76B900", AAPL:"#3C3C3C", GOOGL:"#4285F4", MSFT:"#00A4EF", AMZN:"#FF9900",
-    META:"#0668E1", TSLA:"#E82127", AMD:"#ED1C24", QQQ:"#7B5CD6", SPY:"#A44DE8",
-    IWM:"#8A6FCB", GME:"#D31334", HOOD:"#96C93D", COIN:"#1652F0", PLTR:"#23415E",
-    NFLX:"#E50914", DIS:"#113CCF", BA:"#0039A6", XOM:"#ED1B2E", JPM:"#6E6E6E",
-  };
-  const chip = (tk, size) => `<span class="tchip" style="background:${TK_COLOR[tk] || "#A44DE8"}${size ? `;width:${size}px;height:${size}px` : ""}">${tk[0]}</span>`;
-
+  // ---------- stock brand marks (real logos) ----------
+  function chip(tk, size) {
+    const L = (window.SP_LOGOS || {})[tk];
+    const dim = size ? `width:${size}px;height:${size}px;` : "";
+    if (!L) return `<span class="tchip" style="${dim}background:#A44DE8">${tk[0]}</span>`;
+    if (L.d) {
+      return `<span class="tchip tchip-logo" style="${dim}background:${L.bg}">` +
+             `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="${L.fg}" d="${L.d}"/></svg></span>`;
+    }
+    return `<span class="tchip tchip-text" style="${dim}background:${L.bg};color:${L.fg}">${L.text}</span>`;
+  }
 
   // ---------- links ----------
   $("caText").textContent = CONFIG.CONTRACT_ADDRESS;
-  ["buyBtn", "buyBtnHero", "buyBtnFooter"].forEach((id) => ($(id).href = CONFIG.BUY_LINK));
-  $("xLink").href = CONFIG.X_LINK;
-  $("tgLink").href = CONFIG.TELEGRAM_LINK;
+  ["buyBtn", "buyBtnHero", "buyBtnFooter"].forEach((id) => { const el = $(id); if (el) el.href = CONFIG.BUY_LINK; });
+  if ($("xLink")) $("xLink").href = CONFIG.X_LINK;
+  if ($("tgLink")) $("tgLink").href = CONFIG.TELEGRAM_LINK;
 
   $("copyCaBtn").addEventListener("click", async () => {
     if (CONFIG.CONTRACT_ADDRESS === "TBA") {

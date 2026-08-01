@@ -224,7 +224,9 @@
       setTimeout(closeModal, 900);
       document.dispatchEvent(new CustomEvent("sp:connected", { detail: { account: acct } }));
     } catch (err) {
-      console.error(err);
+      // user rejection / watch-only is expected UX, surfaced in the modal — not an app error
+      const expected = /rejected|Watch-only|Signature/i.test(err && err.message || "");
+      if (!expected) console.error(err);
       verified = false;
       setStatus(err.message || "Connection failed.", true);
     }

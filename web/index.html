@@ -22,142 +22,9 @@
 
 <!-- ===== PLAYGROUND WORLD (fixed background layers) ===== -->
 <div class="world" aria-hidden="true">
-  <div class="sun"></div>
-
-  <svg class="cloud cl1" viewBox="0 0 200 90" width="180"><g fill="#FFFFFF"><ellipse cx="60" cy="58" rx="52" ry="26"/><ellipse cx="110" cy="44" rx="46" ry="30"/><ellipse cx="152" cy="60" rx="40" ry="22"/></g></svg>
-  <svg class="cloud cl2" viewBox="0 0 200 90" width="130"><g fill="#FFFFFF" opacity=".92"><ellipse cx="60" cy="58" rx="52" ry="26"/><ellipse cx="110" cy="44" rx="46" ry="30"/><ellipse cx="152" cy="60" rx="40" ry="22"/></g></svg>
-  <svg class="cloud cl3" viewBox="0 0 200 90" width="220"><g fill="#FFFFFF" opacity=".85"><ellipse cx="60" cy="58" rx="52" ry="26"/><ellipse cx="110" cy="44" rx="46" ry="30"/><ellipse cx="152" cy="60" rx="40" ry="22"/></g></svg>
-
+  <div class="world-art"></div>
   <canvas id="fx3d"></canvas>
-
-  <svg class="village" viewBox="0 0 1440 640" preserveAspectRatio="xMidYMax slice">
-    <defs>
-      <linearGradient id="gHillBack" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#B4E698"/><stop offset="1" stop-color="#8FD470"/>
-      </linearGradient>
-      <linearGradient id="gHillFront" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#79CC53"/><stop offset=".55" stop-color="#57B23C"/><stop offset="1" stop-color="#3E9130"/>
-      </linearGradient>
-      <linearGradient id="gCastle" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#C085F0"/><stop offset="1" stop-color="#8F44CF"/>
-      </linearGradient>
-      <linearGradient id="gHouseCream" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#FFE9C4"/><stop offset="1" stop-color="#FFD79A"/>
-      </linearGradient>
-      <linearGradient id="gHouseBlue" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#D6ECFF"/><stop offset="1" stop-color="#AEDBFF"/>
-      </linearGradient>
-      <linearGradient id="gRoofPink" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#FF7EB5"/><stop offset="1" stop-color="#E0347F"/>
-      </linearGradient>
-      <linearGradient id="gRoofPurple" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#B06CE8"/><stop offset="1" stop-color="#7E2FC4"/>
-      </linearGradient>
-      <radialGradient id="gWindow" cx=".5" cy=".4" r=".8">
-        <stop offset="0" stop-color="#FFF6C9"/><stop offset="1" stop-color="#FFD75E"/>
-      </radialGradient>
-      <radialGradient id="gTree" cx=".38" cy=".3" r=".9">
-        <stop offset="0" stop-color="#8FDD66"/><stop offset="1" stop-color="#3F9A34"/>
-      </radialGradient>
-    </defs>
-
-    <!-- back hills -->
-    <path d="M0,470 Q240,360 520,430 T1040,420 T1440,450 L1440,640 L0,640 Z" fill="url(#gHillBack)"/>
-
-    <!-- castle (behind, center-left) -->
-    <g stroke="#5B1E93" stroke-width="6" stroke-linejoin="round">
-      <rect x="360" y="300" width="150" height="150" rx="10" fill="url(#gCastle)"/>
-      <rect x="330" y="250" width="66" height="200" rx="12" fill="url(#gCastle)"/>
-      <rect x="474" y="250" width="66" height="200" rx="12" fill="url(#gCastle)"/>
-      <path d="M330,250 h66 v-16 h-14 v10 h-12 v-10 h-14 v10 h-12 v-10 h-14 Z" fill="#8F44CF"/>
-      <path d="M474,250 h66 v-16 h-14 v10 h-12 v-10 h-14 v10 h-12 v-10 h-14 Z" fill="#8F44CF"/>
-      <path d="M414,300 a21,21 0 0 1 42,0 v54 h-42 Z" fill="#FFE9A8"/>
-      <rect x="352" y="300" width="22" height="34" rx="10" fill="#FFE9A8"/>
-      <rect x="496" y="300" width="22" height="34" rx="10" fill="#FFE9A8"/>
-    </g>
-    <g stroke="#5B1E93" stroke-width="4"><line x1="363" y1="234" x2="363" y2="204"/><line x1="507" y1="234" x2="507" y2="204"/></g>
-    <path d="M363,204 l30,9 -30,9 Z" fill="#FF5FA2" stroke="#5B1E93" stroke-width="4" stroke-linejoin="round"/>
-    <path d="M507,204 l30,9 -30,9 Z" fill="#FFC531" stroke="#5B1E93" stroke-width="4" stroke-linejoin="round"/>
-
-    <!-- trees back -->
-    <g stroke="#2E7D28" stroke-width="5" stroke-linejoin="round">
-      <rect x="132" y="404" width="18" height="46" rx="8" fill="#8B5A2B" stroke="#5e3d1c"/>
-      <circle cx="141" cy="376" r="46" fill="url(#gTree)"/>
-      <circle cx="112" cy="396" r="30" fill="url(#gTree)"/>
-      <circle cx="172" cy="396" r="30" fill="url(#gTree)"/>
-      <rect x="1268" y="398" width="18" height="50" rx="8" fill="#8B5A2B" stroke="#5e3d1c"/>
-      <circle cx="1277" cy="368" r="50" fill="url(#gTree)"/>
-      <circle cx="1244" cy="392" r="32" fill="url(#gTree)"/>
-      <circle cx="1312" cy="392" r="32" fill="url(#gTree)"/>
-    </g>
-
-    <!-- house 1: cream + pink roof (left) -->
-    <g stroke="#4A2B7A" stroke-width="6" stroke-linejoin="round">
-      <rect x="120" y="452" width="196" height="128" rx="14" fill="url(#gHouseCream)"/>
-      <path d="M100,458 L218,386 L336,458 Z" fill="url(#gRoofPink)"/>
-      <rect x="256" y="396" width="26" height="52" rx="6" fill="#C46A2B"/>
-      <rect x="150" y="486" width="44" height="44" rx="10" fill="url(#gWindow)"/>
-      <line x1="172" y1="486" x2="172" y2="530" stroke-width="4"/>
-      <line x1="150" y1="508" x2="194" y2="508" stroke-width="4"/>
-      <path d="M222,580 v-64 a24,24 0 0 1 48,0 v64 Z" fill="#8B5A2B" stroke="#4A2B7A"/>
-      <circle cx="260" cy="548" r="4.5" fill="#FFC531" stroke="none"/>
-    </g>
-    <ellipse cx="285" cy="416" rx="14" ry="9" fill="#FFFFFF" opacity=".85"/>
-    <ellipse cx="304" cy="404" rx="10" ry="7" fill="#FFFFFF" opacity=".7"/>
-
-    <!-- house 2: blue + purple roof (right) -->
-    <g stroke="#4A2B7A" stroke-width="6" stroke-linejoin="round">
-      <rect x="1064" y="446" width="210" height="136" rx="14" fill="url(#gHouseBlue)"/>
-      <path d="M1044,452 L1169,376 L1294,452 Z" fill="url(#gRoofPurple)"/>
-      <rect x="1226" y="388" width="26" height="50" rx="6" fill="#9A55D6"/>
-      <rect x="1098" y="480" width="46" height="46" rx="10" fill="url(#gWindow)"/>
-      <line x1="1121" y1="480" x2="1121" y2="526" stroke-width="4"/>
-      <line x1="1098" y1="503" x2="1144" y2="503" stroke-width="4"/>
-      <rect x="1196" y="480" width="46" height="46" rx="10" fill="url(#gWindow)"/>
-      <line x1="1219" y1="480" x2="1219" y2="526" stroke-width="4"/>
-      <line x1="1196" y1="503" x2="1242" y2="503" stroke-width="4"/>
-      <circle cx="1169" cy="416" r="16" fill="url(#gWindow)"/>
-    </g>
-
-    <!-- front hills -->
-    <path d="M0,560 Q300,470 640,532 T1140,520 T1440,548 L1440,640 L0,640 Z" fill="url(#gHillFront)"/>
-    <path d="M0,560 Q300,470 640,532 T1140,520 T1440,548" fill="none" stroke="#8FE06B" stroke-width="10" opacity=".55"/>
-
-    <!-- bushes / flowers / mushroom on front hill -->
-    <g stroke="#2E7D28" stroke-width="5">
-      <ellipse cx="470" cy="580" rx="52" ry="26" fill="url(#gTree)"/>
-      <ellipse cx="522" cy="588" rx="38" ry="20" fill="url(#gTree)"/>
-      <ellipse cx="932" cy="586" rx="46" ry="24" fill="url(#gTree)"/>
-    </g>
-    <g stroke="#4A2B7A" stroke-width="3.5" stroke-linejoin="round">
-      <line x1="640" y1="596" x2="640" y2="574"/><circle cx="640" cy="566" r="9" fill="#FF5FA2"/><circle cx="640" cy="566" r="3.4" fill="#FFF06B" stroke="none"/>
-      <line x1="676" y1="600" x2="676" y2="580"/><circle cx="676" cy="572" r="8" fill="#FFC531"/><circle cx="676" cy="572" r="3" fill="#FF5FA2" stroke="none"/>
-      <line x1="806" y1="598" x2="806" y2="578"/><circle cx="806" cy="570" r="8.6" fill="#4FD1F9"/><circle cx="806" cy="570" r="3.2" fill="#FFF06B" stroke="none"/>
-    </g>
-    <g stroke="#4A2B7A" stroke-width="4" stroke-linejoin="round">
-      <rect x="1042" y="586" width="16" height="18" rx="6" fill="#FFF3D9"/>
-      <path d="M1030,588 a20,16 0 0 1 40,0 Z" fill="#F5484D"/>
-      <circle cx="1042" cy="580" r="3" fill="#fff" stroke="none"/><circle cx="1058" cy="582" r="2.6" fill="#fff" stroke="none"/>
-    </g>
-
-    <!-- fence -->
-    <g stroke="#5e3d1c" stroke-width="4">
-      <line x1="0" y1="614" x2="1440" y2="614" stroke-width="7"/>
-      <rect x="34" y="596" width="13" height="36" rx="5" fill="#8B5A2B"/>
-      <rect x="118" y="596" width="13" height="36" rx="5" fill="#8B5A2B"/>
-      <rect x="202" y="596" width="13" height="36" rx="5" fill="#8B5A2B"/>
-      <rect x="1230" y="596" width="13" height="36" rx="5" fill="#8B5A2B"/>
-      <rect x="1314" y="596" width="13" height="36" rx="5" fill="#8B5A2B"/>
-      <rect x="1398" y="596" width="13" height="36" rx="5" fill="#8B5A2B"/>
-    </g>
-  </svg>
-
-  <div class="floaties">
-    <span class="confetti cf1"></span><span class="confetti cf2"></span><span class="confetti cf3"></span>
-    <span class="confetti cf4"></span><span class="confetti cf5"></span><span class="confetti cf6"></span>
-    <span class="confetti cf7"></span><span class="confetti cf8"></span>
-    <span class="spark sp1">✨</span><span class="spark sp2">⭐</span><span class="spark sp3">✨</span>
-  </div>
+  <div class="world-veil"></div>
 </div>
 <script src="assets/vendor/three.min.js" defer></script>
 <script src="js/scene3d.js" defer></script>
@@ -178,7 +45,7 @@
 
 <main id="top">
 <!-- ===== HERO ===== -->
-<section class="hero hero-art">
+<section class="hero">
   <div class="hero-inner">
   <h1 class="hero-logo"><span class="hl-stock">ST<span class="hl-paw">🐾</span>CK</span><span class="hl-paws">PAWS</span></h1>
   <p class="hero-tag">Robinhood Chain · Pet Agents · Stock Tokens</p>
@@ -232,10 +99,10 @@
     <div class="xp-row"><span class="xp-label">XP</span><div class="xp-bar"><i id="xpFill" style="width:18%"></i></div><span class="xp-text" id="xpText">40/220</span></div>
 
     <div class="pet-picker" id="petPicker">
-      <button class="pick active" data-pet="waffles" type="button"><img src="assets/pets/waffles-1.png" alt="Waffles"></button>
-      <button class="pick" data-pet="vix" type="button"><img src="assets/pets/vix-1.png" alt="Vix"></button>
-      <button class="pick" data-pet="scout" type="button"><img src="assets/pets/scout-3.png" alt="Scout"></button>
-      <button class="pick" data-pet="moss" type="button"><img src="assets/pets/moss-1.png" alt="Moss"></button>
+      <button class="pick active" data-pet="waffles" type="button" aria-label="Select Waffles"><img src="assets/pets/waffles-1.png" alt="Waffles"></button>
+      <button class="pick" data-pet="vix" type="button" aria-label="Select Vix"><img src="assets/pets/vix-1.png" alt="Vix"></button>
+      <button class="pick" data-pet="scout" type="button" aria-label="Select Scout"><img src="assets/pets/scout-3.png" alt="Scout"></button>
+      <button class="pick" data-pet="moss" type="button" aria-label="Select Moss"><img src="assets/pets/moss-1.png" alt="Moss"></button>
     </div>
 
     <div class="statgrid">
@@ -407,6 +274,7 @@
 
 <div class="toast" id="toast" hidden></div>
 
+<script src="js/logos.js"></script>
 <script src="js/wallet.js"></script>
 <script src="js/app.js"></script>
 </body>
