@@ -11,19 +11,21 @@ stockpaws/
 ├── css/style.css         # Cartoon Playground theme
 ├── js/
 │   ├── wallet.js         # connect, sessions, watch-only block, disconnect
-│   └── app.js            # desk game, per-wallet saves, tickers ← CONFIG here
+│   ├── app.js            # desk game, per-wallet saves, tickers ← CONFIG here
+│   └── scene3d.js        # Three.js ambient coin layer (auto-disables on reduced motion)
 ├── api/
-│   └── state.js          # serverless: signature-verified Supabase saves
-├── supabase/setup.sql    # run once in Supabase SQL editor
-├── package.json          # ethers (used by api/state.js on the server)
+│   └── state.js          # serverless: signature-verified Postgres saves
+├── package.json          # ethers + pg (used by api/state.js on the server)
 ├── .env.example          # env vars you set in Vercel
 ├── assets/
-│   ├── art/              # generated scene art (hero, pack cards, banner, OG)
+│   ├── art/              # scene art (hero, pack cards, banner, og.jpg for social shares)
 │   ├── vendor/           # three.js (bundled, no CDN needed)
-│   ├── icons/            # favicons from your logo
+│   ├── icons/            # favicons
 │   └── pets/             # transparent character poses
 └── README.md
 ```
+
+To swap any art, drop a replacement file with the same name in `assets/art/` — no code changes.
 
 ## ⚙️ 1. Replace the placeholders
 
@@ -38,25 +40,24 @@ const CONFIG = {
 };
 ```
 
-## 🗄️ 2. Supabase (per-wallet cloud saves)
+## 🗄️ 2. Postgres (per-wallet cloud saves)
 
-1. Create a project at supabase.com
-2. SQL Editor → paste and run **`supabase/setup.sql`** (creates the
-   `paw_states` table, RLS locked so only the server can touch it)
-3. Project Settings → API → copy the **URL** and the **service_role** key
-4. In Vercel → your project → Settings → Environment Variables, add:
+Any Postgres works (we use Railway). In Vercel → your project →
+Settings → Environment Variables, add:
 
 ```
-SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
+DATABASE_URL=postgresql://user:password@host:port/dbname
 ```
 
-(`.env.example` shows the same. The service key never appears in frontend
-code — only `api/state.js` reads it on the server.)
+(`.env.example` shows the same. The connection string never appears in
+frontend code — only `api/state.js` reads it on the server.)
 
-> **No Supabase yet? Fine.** The site detects the missing config and quietly
+No manual SQL needed: `api/state.js` creates the `paw_states` table on
+first request.
+
+> **No database yet? Fine.** The site detects the missing config and quietly
 > falls back to per-browser localStorage. You can deploy today and add
-> Supabase later with zero code changes.
+> the database later with zero code changes.
 
 ## ▶️ 3. Run locally
 
@@ -74,7 +75,7 @@ python -m http.server 3000
 vercel --prod
 ```
 
-Vercel auto-installs `ethers` for the api function from package.json.
+Vercel auto-installs `ethers` and `pg` for the api function from package.json.
 After adding env vars, redeploy once so the function picks them up.
 
 ## 👛 Wallet system
@@ -94,34 +95,10 @@ After adding env vars, redeploy once so the function picks them up.
   "🔒 Connect wallet to view your hunts", and nothing saves until the wallet
   signs in again.
 - **Per-wallet data** — every wallet address gets its own pet state: cached
-  locally per-address AND synced to Supabase through `/api/state`, which
+  locally per-address AND synced to Postgres through `/api/state`, which
   verifies the wallet signature on every request (so only the real owner can
   read/write their row). Connect the same wallet on another device and your
   pet follows you.
-
-## 🎨 Art & scene
-
-- `assets/art/hero-tall.jpg` — mobile hero background
-- `assets/art/hero-wide.jpg` — desktop hero background (swaps at 760px)
-- `assets/art/card-*.jpg` — the four action scenes on the Pack cards
-- `assets/art/banner.jpg` / `banner-tall.jpg` — final CTA (wide / portrait)
-- `assets/art/og.jpg` — social share image (1200x630), wired into og:image
-
-To swap any of them, drop a replacement file with the same name — no code changes.
-The scene art is a FIXED, full-site background: `hero-tall.jpg` on mobile and
-`hero-wide.jpg` on desktop (swaps at 760px), staying behind every section as you
-scroll. A translucent scrim sits over it so white text and cards stay readable.
-Three.js gold coins float above it; that layer auto-disables for reduced-motion
-and pauses on hidden tabs.
-
-## 📈 Stock logos
-
-`js/logos.js` holds the brand marks for all 20 tickers: official SVG logos for
-the 13 companies with public marks (Apple, Amazon, Google, Microsoft, Meta,
-Tesla, NVIDIA, AMD, Netflix, Coinbase, Robinhood, Palantir, Boeing) and
-ticker-wordmark badges in brand colors for the ETFs (QQQ/SPY/IWM) and the
-brands without an available mark (GME, DIS, JPM, XOM). To swap any of them,
-edit that one file — `d` for an SVG path, or `text` for a wordmark badge.
 
 ## 🎮 The desk
 
