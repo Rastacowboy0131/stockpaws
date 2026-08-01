@@ -50,6 +50,18 @@ export async function getSignal(token) {
     console.error(`signal for ${token.symbol}: non-numeric priceUsd ${JSON.stringify(pair.priceUsd)}, ignoring pair`);
     pair = null;
   }
+  // Stale price guard: dexscreener keeps returning the LAST price even when a
+  // pair has been dead for hours. Require some sign of life: at least one
+  // trade in the last hour, or nonzero h1 volume. Dead pairs return null so
+  // breeds never "trade" against a frozen quote.
+  if (pair) {
+    const t1 = (pair.txns?.h1?.buys || 0) + (pair.txns?.h1?.sells || 0);
+    const v1 = pair.volume?.h1 || 0;
+    if (t1 === 0 && v1 === 0) {
+      console.error(`signal for ${token.symbol}: stale pair (no h1 txns or volume), ignoring`);
+      pair = null;
+    }
+  }
   const signal = pair
     ? {
         symbol: token.symbol,
