@@ -62,11 +62,19 @@ function createPet(flags) {
     }
     diet.push({ symbol: sym, address: KNOWN_TOKENS[sym] });
   }
+  const funder = flags.funder || null;
+  if (funder && !/^0x[0-9a-fA-F]{40}$/.test(funder)) {
+    console.error("--funder must be a 0x address (the wallet withdrawals will go to)");
+    process.exit(1);
+  }
   const pet = {
     id,
     name,
     breed,
     live: true,
+    liveTrading: false,
+    funder,
+    slippagePct: 1,
     aggression: Math.min(1, Math.max(0, parseFloat(flags.aggression ?? "0.2"))),
     patience: parseFloat(flags.patience ?? "2"),
     capUsd: parseFloat(flags.cap ?? "500"),
@@ -129,7 +137,7 @@ switch (cmd) {
   case "retire-pet": retirePet(rest.find(a => !a.startsWith("--"))); break;
   default:
     console.log("stockpaws CLI (paper mode)");
-    console.log("  create-pet --name <name> --breed <momentum|dipper|scalper> [--aggression 0.2] [--patience 2] [--cap 500] [--diet AAPL,TSLA]");
+    console.log("  create-pet --name <name> --breed <momentum|dipper|scalper> [--aggression 0.2] [--patience 2] [--cap 500] [--diet AAPL,TSLA] [--funder 0x...]");
     console.log("  list-pets");
     console.log("  retire-pet <id>");
 }

@@ -6,6 +6,7 @@ import { petWallet } from "./wallet.js";
 import { getSignal } from "./signals.js";
 import { breeds } from "./breeds.js";
 import { loadState, saveState, logTrade, rollDay, openPosition, closePosition, markToMarket } from "./portfolio.js";
+import { isLive, executeTrade } from "./execution.js";
 
 const PETS_DIR = "pets";
 const MIN_LIQUIDITY_USD = 5000; // do not paper-trade into puddles
@@ -61,6 +62,17 @@ async function tickPet(pet) {
       const openExposure = Object.values(state.positions).reduce((s, p) => s + p.sizeUsd, 0);
       const sizeUsd = Math.min(pet.aggression * pet.capUsd, pet.capUsd - openExposure);
       if (sizeUsd < 1) continue;
+      if (isLive(pet)) {
+        // LIVE PATH: execution.js re-checks all risk rails and sends the swap.
+        try {
+          const entry = await executeTrade({ pet, side: "buy", token, sizeUsd, signal: sig, reason: decision.reason });
+          openPosition(state, token, sizeUsd, sig.priceUsd);
+          console.log(`[${pet.id}] LIVE BUY ${token.symbol} $${entry.sizeUsd} tx=${entry.txHash} :: ${decision.reason}`);
+        } catch (e) {
+          console.error(`[${pet.id}] live buy refused/failed: ${e.message}`);
+        }
+        continue;
+      }
       openPosition(state, token, sizeUsd, sig.priceUsd);
       const entry = {
         ts: new Date().toISOString(), mode: "paper", petId: pet.id, wallet: address,
@@ -71,6 +83,16 @@ async function tickPet(pet) {
       logTrade(pet.id, entry);
       console.log(`[${pet.id}] PAPER BUY ${token.symbol} $${entry.sizeUsd} @ ${sig.priceUsd} :: ${decision.reason}`);
     } else if (decision.side === "sell" && pos) {
+      if (isLive(pet)) {
+        try {
+          const entry = await executeTrade({ pet, side: "sell", token, signal: sig, reason: decision.reason });
+          const realized = closePosition(state, token.address, sig.priceUsd);
+          console.log(`[${pet.id}] LIVE SELL ${token.symbol} tx=${entry.txHash} pnl=${realized.toFixed(4)} :: ${decision.reason}`);
+        } catch (e) {
+          console.error(`[${pet.id}] live sell refused/failed: ${e.message}`);
+        }
+        continue;
+      }
       const realized = closePosition(state, token.address, sig.priceUsd);
       const entry = {
         ts: new Date().toISOString(), mode: "paper", petId: pet.id, wallet: address,
