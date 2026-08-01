@@ -10,7 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { Contract, formatEther, parseEther, getAddress, isAddress, MaxUint256 } from "ethers";
 import { petWallet } from "./wallet.js";
-import { ADDR, wethContract, isLive, sellAllWithRetry } from "./execution.js";
+import { ADDR, wethContract, isLive, sellAllWithRetry, gasOverrides } from "./execution.js";
 import { logTrade } from "./portfolio.js";
 
 const ERC20_ABI = [
@@ -65,7 +65,7 @@ export async function withdrawAll(petId) {
   const weth = wethContract(signer);
   const wbal = await weth.balanceOf(address);
   if (wbal > 0n) {
-    const tx = await weth.withdraw(wbal);
+    const tx = await weth.withdraw(wbal, await gasOverrides(provider));
     await tx.wait();
     steps.push({ step: "unwrap", amountEth: formatEther(wbal), txHash: tx.hash });
   }
@@ -74,6 +74,7 @@ export async function withdrawAll(petId) {
   // RH Chain is an Arbitrum Orbit chain: plain transfers cost more than 21000
   // gas (ArbOS L1 component), so always estimate.
   const ethBal = await provider.getBalance(address);
+  await gasOverrides(provider); // asserts gas price is under the sanity cap
   const feeData = await provider.getFeeData();
   const gasPrice = feeData.maxFeePerGas ?? feeData.gasPrice ?? parseEther("0.000000001");
   const gasLimit = await provider.estimateGas({ from: address, to: funder, value: 1n }).catch(() => 100000n);

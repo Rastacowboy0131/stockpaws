@@ -30,6 +30,10 @@ export const FEE_TIERS = [100, 500, 3000, 10000];
 export const MIN_LIQUIDITY_USD = 5000;
 const DEFAULT_SLIPPAGE_PCT = 1;
 const GAS_RESERVE_ETH = "0.002"; // never wrap the last bit of ETH, gas must survive
+// Gas price sanity cap: a hostile or glitching RPC must never make us pay an
+// absurd fee. RH Chain gas is normally well under 1 gwei; override via
+// MAX_GAS_GWEI if the chain ever changes.
+const MAX_GAS_GWEI = parseFloat(process.env.MAX_GAS_GWEI || "10");
 const DEADLINE_SECONDS = 120;
 
 const ERC20_ABI = [
@@ -75,6 +79,22 @@ function erc20(address, signerOrProvider) {
 }
 export function wethContract(signerOrProvider) {
   return new Contract(ADDR.weth, WETH_ABI, signerOrProvider);
+}
+
+// Gas cap: returns tx overrides ({ maxFeePerGas } or { gasPrice }) after
+// asserting the network's suggested price is under MAX_GAS_GWEI. Throws if a
+// glitching/hostile RPC suggests an absurd price.
+export async function gasOverrides(provider) {
+  const fee = await provider.getFeeData();
+  const capWei = BigInt(Math.round(MAX_GAS_GWEI * 1e9));
+  const suggested = fee.maxFeePerGas ?? fee.gasPrice;
+  if (suggested != null && suggested > capWei) {
+    throw new Error(`refused: network gas price ${suggested} wei exceeds cap ${capWei} wei (MAX_GAS_GWEI=${MAX_GAS_GWEI})`);
+  }
+  if (fee.maxFeePerGas != null) {
+    return { maxFeePerGas: fee.maxFeePerGas, maxPriorityFeePerGas: fee.maxPriorityFeePerGas ?? 0n };
+  }
+  return fee.gasPrice != null ? { gasPrice: fee.gasPrice } : {};
 }
 
 // Surface revert reasons instead of ethers' wall of JSON.
@@ -167,7 +187,7 @@ export async function ensureWeth(signer, amountWei) {
   if (ethBal - reserve < need) {
     throw new Error(`insufficient funds: need ${formatEther(need)} more WETH, wallet has ${formatEther(ethBal)} ETH (gas reserve ${GAS_RESERVE_ETH})`);
   }
-  const tx = await weth.deposit({ value: need });
+  const tx = await weth.deposit({ value: need, ...(await gasOverrides(signer.provider)) });
   await tx.wait();
 }
 
@@ -175,7 +195,7 @@ async function ensureAllowance(signer, tokenAddr, spender, amountWei) {
   const t = erc20(tokenAddr, signer);
   const allowance = await t.allowance(signer.address, spender);
   if (allowance >= amountWei) return;
-  const tx = await t.approve(spender, MaxUint256);
+  const tx = await t.approve(spender, MaxUint256, await gasOverrides(signer.provider));
   await tx.wait();
 }
 
@@ -197,7 +217,7 @@ async function swapExactInputSingle(signer, { tokenIn, tokenOut, amountIn, slipp
   const callData = router.interface.encodeFunctionData("exactInputSingle", [params]);
   let tx;
   try {
-    tx = await router.multicall(deadline, [callData]);
+    tx = await router.multicall(deadline, [callData], await gasOverrides(signer.provider));
   } catch (e) {
     throw new Error(`swap reverted: ${revertReason(e)}`);
   }
