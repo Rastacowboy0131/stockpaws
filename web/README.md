@@ -11,14 +11,21 @@ stockpaws/
 ├── css/style.css         # Cartoon Playground theme
 ├── js/
 │   ├── wallet.js         # connect, sessions, watch-only block, disconnect
-│   └── app.js            # desk game, per-wallet saves, tickers ← CONFIG here
+│   ├── app.js            # desk game, per-wallet saves, tickers ← CONFIG here
+│   └── scene3d.js        # Three.js ambient coin layer (auto-disables on reduced motion)
 ├── api/
 │   └── state.js          # serverless: signature-verified Postgres saves
 ├── package.json          # ethers + pg (used by api/state.js on the server)
 ├── .env.example          # env vars you set in Vercel
-├── assets/               # logo, favicons, transparent pet poses
+├── assets/
+│   ├── art/              # scene art (hero, pack cards, banner, og.jpg for social shares)
+│   ├── vendor/           # three.js (bundled, no CDN needed)
+│   ├── icons/            # favicons
+│   └── pets/             # transparent character poses
 └── README.md
 ```
+
+To swap any art, drop a replacement file with the same name in `assets/art/` — no code changes.
 
 ## ⚙️ 1. Replace the placeholders
 

@@ -191,11 +191,22 @@
         "Wallet: " + acct + "\n" +
         "Issued: " + issued + "\n" +
         "Nonce: " + nonce;
+      // Spec-compliant personal_sign takes HEX data. MetaMask tolerates plain
+      // strings but Phantom/others reject them -> hex first, plain fallback.
+      const msgHex = "0x" + Array.from(new TextEncoder().encode(msg))
+        .map((b) => b.toString(16).padStart(2, "0")).join("");
       let sig;
       try {
-        sig = await provider.request({ method: "personal_sign", params: [msg, acct] });
-      } catch (e) {
-        throw new Error("Signature failed or was rejected. Watch-only wallets can't connect to STOCKPAWS.");
+        sig = await provider.request({ method: "personal_sign", params: [msgHex, acct] });
+      } catch (e1) {
+        if (e1 && e1.code === 4001) {
+          throw new Error("Signature rejected. Watch-only wallets can't connect to STOCKPAWS.");
+        }
+        try {
+          sig = await provider.request({ method: "personal_sign", params: [msg, acct] });
+        } catch (e2) {
+          throw new Error("Signature failed or was rejected. Watch-only wallets can't connect to STOCKPAWS.");
+        }
       }
       if (!sig || typeof sig !== "string" || sig.length < 100) {
         throw new Error("Invalid signature. Watch-only wallets can't connect to STOCKPAWS.");

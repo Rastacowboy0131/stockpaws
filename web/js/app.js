@@ -25,6 +25,55 @@
 
   const $ = (id) => document.getElementById(id);
 
+  // ---------- cute sounds (WebAudio, no files needed) ----------
+  const SND_KEY = "stockpaws.sound";
+  let soundOn = localStorage.getItem(SND_KEY) !== "off";
+  let actx = null;
+  function ac() { if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch { } } return actx; }
+  function tone(freq, dur, type, vol, when, slide) {
+    const c = ac(); if (!c || !soundOn) return;
+    const t0 = c.currentTime + (when || 0);
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = type || "sine"; o.frequency.setValueAtTime(freq, t0);
+    if (slide) o.frequency.exponentialRampToValueAtTime(slide, t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol || 0.16, t0 + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g).connect(c.destination);
+    o.start(t0); o.stop(t0 + dur + 0.02);
+  }
+  const SFX = {
+    pop:    () => tone(520, .09, "triangle", .18, 0, 720),
+    click:  () => tone(300, .06, "square", .07),
+    coin:   () => { tone(988, .09, "square", .12); tone(1319, .22, "square", .12, .09); },
+    yay:    () => { tone(523, .12, "triangle", .16); tone(659, .12, "triangle", .16, .1); tone(784, .2, "triangle", .16, .2); },
+    sad:    () => { tone(392, .16, "sawtooth", .09); tone(311, .3, "sawtooth", .09, .14); },
+    meow:   () => tone(700, .18, "sine", .14, 0, 420),
+    woosh:  () => tone(200, .18, "sawtooth", .05, 0, 90),
+  };
+  const sndBtn = $("soundToggle");
+  function renderSound() { sndBtn.textContent = soundOn ? "🔊" : "🔇"; }
+  sndBtn.addEventListener("click", () => {
+    soundOn = !soundOn;
+    localStorage.setItem(SND_KEY, soundOn ? "on" : "off");
+    renderSound(); if (soundOn) SFX.pop();
+  });
+  renderSound();
+  // gentle pops on every button
+  document.addEventListener("click", (e) => {
+    if (e.target.closest("button, .btn, .bn-item")) SFX.click();
+  }, true);
+
+  // ---------- ticker brand colors ----------
+  const TK_COLOR = {
+    NVDA:"#76B900", AAPL:"#3C3C3C", GOOGL:"#4285F4", MSFT:"#00A4EF", AMZN:"#FF9900",
+    META:"#0668E1", TSLA:"#E82127", AMD:"#ED1C24", QQQ:"#7B5CD6", SPY:"#A44DE8",
+    IWM:"#8A6FCB", GME:"#D31334", HOOD:"#96C93D", COIN:"#1652F0", PLTR:"#23415E",
+    NFLX:"#E50914", DIS:"#113CCF", BA:"#0039A6", XOM:"#ED1B2E", JPM:"#6E6E6E",
+  };
+  const chip = (tk, size) => `<span class="tchip" style="background:${TK_COLOR[tk] || "#A44DE8"}${size ? `;width:${size}px;height:${size}px` : ""}">${tk[0]}</span>`;
+
+
   // ---------- links ----------
   $("caText").textContent = CONFIG.CONTRACT_ADDRESS;
   ["buyBtn", "buyBtnHero", "buyBtnFooter"].forEach((id) => ($(id).href = CONFIG.BUY_LINK));
@@ -65,7 +114,7 @@
       if (f && !tk.toLowerCase().includes(f) && !nm.toLowerCase().includes(f)) return;
       const d = document.createElement("div");
       d.className = "ticker-chip";
-      d.innerHTML = `<span class="tk">$${tk}</span><span class="nm">${nm}</span>`;
+      d.innerHTML = `${chip(tk)}<span class="tx"><span class="tk">$${tk}</span><span class="nm">${nm}</span></span>`;
       grid.appendChild(d); n++;
     });
     $("tickerCount").textContent = n + " shown";
@@ -84,7 +133,7 @@
   const DEFAULT_STATE = {
     pet:"waffles", xp:40, level:1,
     energy:74, trust:62, edge:41, streak:2, hunger:72, bond:62,
-    autonomy:25, pnl:0, trades:[],
+    autonomy:25, pnl:0, balance:300, trades:[],
   };
 
   let S = { ...DEFAULT_STATE };
@@ -169,7 +218,10 @@
     $("xpFill").style.width = clamp((S.xp / need) * 100) + "%";
     $("xpText").textContent = `${S.xp}/${need} xp`;
     $("lvlBadge").textContent = "Lv " + S.level;
-    $("pnlBadge").textContent = (S.pnl >= 0 ? "+" : "") + S.pnl.toFixed(2) + " sim";
+    const pnlEl = $("pnlBadge");
+    pnlEl.textContent = (S.pnl >= 0 ? "+$" : "-$") + Math.abs(S.pnl).toFixed(2);
+    pnlEl.classList.toggle("neg", S.pnl < 0);
+    $("balanceVal").textContent = "$" + Math.round(S.balance);
     $("stEnergy").textContent = S.energy;
     $("stTrust").textContent = S.trust;
     $("stEdge").textContent = S.edge;
@@ -195,8 +247,8 @@
     }
     S.trades.slice(0, 6).forEach((t) => {
       const li = document.createElement("li");
-      const cls = t.pl >= 0 ? "trade-pl-pos" : "trade-pl-neg";
-      li.innerHTML = `<span>$${t.tk} ${t.side} ${t.qty} @ ${t.px}</span><span class="${cls}">${t.pl >= 0 ? "+" : ""}$${t.pl.toFixed(2)}</span>`;
+      const cls = t.pl >= 0 ? "pos" : "neg";
+      li.innerHTML = `${chip(t.tk)}<span class="tinfo"><span class="tk">${t.tk}</span><span class="dt">${t.side} ${t.qty} @ ${t.px}</span></span><span class="tpl ${cls}">${t.pl >= 0 ? "+" : "-"}$${Math.abs(t.pl).toFixed(2)}</span><span class="tpaw">🐾</span>`;
       ul.appendChild(li);
     });
   }
@@ -204,7 +256,7 @@
   function gainXp(n) {
     S.xp += n;
     const need = 220 * S.level;
-    if (S.xp >= need) { S.xp -= need; S.level++; window.spToast(`${PETS[S.pet].name} leveled up! Lv ${S.level} 🎉`); }
+    if (S.xp >= need) { S.xp -= need; S.level++; window.spToast(`${PETS[S.pet].name} leveled up! Lv ${S.level} 🎉`); SFX.yay(); }
   }
 
   // ---------- actions (locked until connected) ----------
@@ -226,9 +278,9 @@
     btn.addEventListener("click", () => {
       if (!requireWallet()) return;
       const act = btn.dataset.act;
-      if (act === "feed")   { S.hunger = clamp(S.hunger + 18); S.energy = clamp(S.energy + 8); gainXp(6); log(pick(LINES.feed)); }
-      if (act === "praise") { S.trust = clamp(S.trust + 6);  S.bond = clamp(S.bond + 4);      gainXp(8); log(pick(LINES.praise)); }
-      if (act === "scold")  { S.edge = clamp(S.edge + 5);   S.trust = clamp(S.trust - 2);     gainXp(4); log(pick(LINES.scold)); }
+      if (act === "feed")   { S.hunger = clamp(S.hunger + 18); S.energy = clamp(S.energy + 8); gainXp(6); SFX.pop(); log(pick(LINES.feed)); }
+      if (act === "praise") { S.trust = clamp(S.trust + 6);  S.bond = clamp(S.bond + 4);      gainXp(8); SFX.meow(); log(pick(LINES.praise)); }
+      if (act === "scold")  { S.edge = clamp(S.edge + 5);   S.trust = clamp(S.trust - 2);     gainXp(4); SFX.woosh(); log(pick(LINES.scold)); }
       if (act === "scan")   { return scan(); }
       save(); renderDesk();
     });
@@ -249,6 +301,7 @@
     $("propTicker").textContent = "$" + tk;
     $("propBody").textContent = `${side} ${qty} @ ${px}`;
     $("proposal").hidden = false;
+    SFX.pop();
     S.hunger = clamp(S.hunger - 8);
     S.energy = clamp(S.energy - 5);
     log(`spotted $${tk}. proposal up — approve or veto, you hold the leash.`);
@@ -259,10 +312,11 @@
     if (!prop || !requireWallet()) return;
     const pl = +((Math.random() * 8 - 2.8) * (1 + S.edge / 100)).toFixed(2);
     S.trades.unshift({ ...prop, pl });
+    S.balance = Math.max(0, +(S.balance + pl).toFixed(2));
     S.trades = S.trades.slice(0, 50);
     S.pnl = +(S.pnl + pl).toFixed(2);
-    if (pl >= 0) { S.streak++; S.edge = clamp(S.edge + 2); log(`hunt closed +$${pl.toFixed(2)} (sim). feed me a win treat?`); }
-    else { S.streak = 0; S.trust = clamp(S.trust - 3); log(`hunt closed -$${Math.abs(pl).toFixed(2)} (sim). scold me if you must.`); }
+    if (pl >= 0) { SFX.coin(); S.streak++; S.edge = clamp(S.edge + 2); log(`hunt closed +$${pl.toFixed(2)} (sim). feed me a win treat?`); }
+    else { SFX.sad(); S.streak = 0; S.trust = clamp(S.trust - 3); log(`hunt closed -$${Math.abs(pl).toFixed(2)} (sim). scold me if you must.`); }
     gainXp(14);
     prop = null; $("proposal").hidden = true;
     save(); renderDesk();

@@ -7,86 +7,229 @@
 <meta name="description" content="STOCKPAWS: pet agents that hunt Robinhood Chain stock tokens. Fund them. Tame them. You hold the leash.">
 <meta property="og:title" content="STOCKPAWS — Fund. Tame. Hunt stock tokens.">
 <meta property="og:description" content="Pet agents with a leash on Robinhood Chain. Agent proposes. You decide.">
-<meta property="og:image" content="assets/logo.png">
-<meta name="theme-color" content="#7EC8F5">
+<meta property="og:image" content="assets/art/og.jpg">
+<meta name="theme-color" content="#6FA8F5">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="64x64" href="assets/icons/favicon-64.png">
 <link rel="shortcut icon" href="assets/icons/favicon.ico">
 <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<!-- ============ TOP BAR ============ -->
+<!-- ===== PLAYGROUND WORLD (fixed background layers) ===== -->
+<div class="world" aria-hidden="true">
+  <div class="sun"></div>
+
+  <svg class="cloud cl1" viewBox="0 0 200 90" width="180"><g fill="#FFFFFF"><ellipse cx="60" cy="58" rx="52" ry="26"/><ellipse cx="110" cy="44" rx="46" ry="30"/><ellipse cx="152" cy="60" rx="40" ry="22"/></g></svg>
+  <svg class="cloud cl2" viewBox="0 0 200 90" width="130"><g fill="#FFFFFF" opacity=".92"><ellipse cx="60" cy="58" rx="52" ry="26"/><ellipse cx="110" cy="44" rx="46" ry="30"/><ellipse cx="152" cy="60" rx="40" ry="22"/></g></svg>
+  <svg class="cloud cl3" viewBox="0 0 200 90" width="220"><g fill="#FFFFFF" opacity=".85"><ellipse cx="60" cy="58" rx="52" ry="26"/><ellipse cx="110" cy="44" rx="46" ry="30"/><ellipse cx="152" cy="60" rx="40" ry="22"/></g></svg>
+
+  <canvas id="fx3d"></canvas>
+
+  <svg class="village" viewBox="0 0 1440 640" preserveAspectRatio="xMidYMax slice">
+    <defs>
+      <linearGradient id="gHillBack" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#B4E698"/><stop offset="1" stop-color="#8FD470"/>
+      </linearGradient>
+      <linearGradient id="gHillFront" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#79CC53"/><stop offset=".55" stop-color="#57B23C"/><stop offset="1" stop-color="#3E9130"/>
+      </linearGradient>
+      <linearGradient id="gCastle" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#C085F0"/><stop offset="1" stop-color="#8F44CF"/>
+      </linearGradient>
+      <linearGradient id="gHouseCream" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#FFE9C4"/><stop offset="1" stop-color="#FFD79A"/>
+      </linearGradient>
+      <linearGradient id="gHouseBlue" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#D6ECFF"/><stop offset="1" stop-color="#AEDBFF"/>
+      </linearGradient>
+      <linearGradient id="gRoofPink" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#FF7EB5"/><stop offset="1" stop-color="#E0347F"/>
+      </linearGradient>
+      <linearGradient id="gRoofPurple" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#B06CE8"/><stop offset="1" stop-color="#7E2FC4"/>
+      </linearGradient>
+      <radialGradient id="gWindow" cx=".5" cy=".4" r=".8">
+        <stop offset="0" stop-color="#FFF6C9"/><stop offset="1" stop-color="#FFD75E"/>
+      </radialGradient>
+      <radialGradient id="gTree" cx=".38" cy=".3" r=".9">
+        <stop offset="0" stop-color="#8FDD66"/><stop offset="1" stop-color="#3F9A34"/>
+      </radialGradient>
+    </defs>
+
+    <!-- back hills -->
+    <path d="M0,470 Q240,360 520,430 T1040,420 T1440,450 L1440,640 L0,640 Z" fill="url(#gHillBack)"/>
+
+    <!-- castle (behind, center-left) -->
+    <g stroke="#5B1E93" stroke-width="6" stroke-linejoin="round">
+      <rect x="360" y="300" width="150" height="150" rx="10" fill="url(#gCastle)"/>
+      <rect x="330" y="250" width="66" height="200" rx="12" fill="url(#gCastle)"/>
+      <rect x="474" y="250" width="66" height="200" rx="12" fill="url(#gCastle)"/>
+      <path d="M330,250 h66 v-16 h-14 v10 h-12 v-10 h-14 v10 h-12 v-10 h-14 Z" fill="#8F44CF"/>
+      <path d="M474,250 h66 v-16 h-14 v10 h-12 v-10 h-14 v10 h-12 v-10 h-14 Z" fill="#8F44CF"/>
+      <path d="M414,300 a21,21 0 0 1 42,0 v54 h-42 Z" fill="#FFE9A8"/>
+      <rect x="352" y="300" width="22" height="34" rx="10" fill="#FFE9A8"/>
+      <rect x="496" y="300" width="22" height="34" rx="10" fill="#FFE9A8"/>
+    </g>
+    <g stroke="#5B1E93" stroke-width="4"><line x1="363" y1="234" x2="363" y2="204"/><line x1="507" y1="234" x2="507" y2="204"/></g>
+    <path d="M363,204 l30,9 -30,9 Z" fill="#FF5FA2" stroke="#5B1E93" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M507,204 l30,9 -30,9 Z" fill="#FFC531" stroke="#5B1E93" stroke-width="4" stroke-linejoin="round"/>
+
+    <!-- trees back -->
+    <g stroke="#2E7D28" stroke-width="5" stroke-linejoin="round">
+      <rect x="132" y="404" width="18" height="46" rx="8" fill="#8B5A2B" stroke="#5e3d1c"/>
+      <circle cx="141" cy="376" r="46" fill="url(#gTree)"/>
+      <circle cx="112" cy="396" r="30" fill="url(#gTree)"/>
+      <circle cx="172" cy="396" r="30" fill="url(#gTree)"/>
+      <rect x="1268" y="398" width="18" height="50" rx="8" fill="#8B5A2B" stroke="#5e3d1c"/>
+      <circle cx="1277" cy="368" r="50" fill="url(#gTree)"/>
+      <circle cx="1244" cy="392" r="32" fill="url(#gTree)"/>
+      <circle cx="1312" cy="392" r="32" fill="url(#gTree)"/>
+    </g>
+
+    <!-- house 1: cream + pink roof (left) -->
+    <g stroke="#4A2B7A" stroke-width="6" stroke-linejoin="round">
+      <rect x="120" y="452" width="196" height="128" rx="14" fill="url(#gHouseCream)"/>
+      <path d="M100,458 L218,386 L336,458 Z" fill="url(#gRoofPink)"/>
+      <rect x="256" y="396" width="26" height="52" rx="6" fill="#C46A2B"/>
+      <rect x="150" y="486" width="44" height="44" rx="10" fill="url(#gWindow)"/>
+      <line x1="172" y1="486" x2="172" y2="530" stroke-width="4"/>
+      <line x1="150" y1="508" x2="194" y2="508" stroke-width="4"/>
+      <path d="M222,580 v-64 a24,24 0 0 1 48,0 v64 Z" fill="#8B5A2B" stroke="#4A2B7A"/>
+      <circle cx="260" cy="548" r="4.5" fill="#FFC531" stroke="none"/>
+    </g>
+    <ellipse cx="285" cy="416" rx="14" ry="9" fill="#FFFFFF" opacity=".85"/>
+    <ellipse cx="304" cy="404" rx="10" ry="7" fill="#FFFFFF" opacity=".7"/>
+
+    <!-- house 2: blue + purple roof (right) -->
+    <g stroke="#4A2B7A" stroke-width="6" stroke-linejoin="round">
+      <rect x="1064" y="446" width="210" height="136" rx="14" fill="url(#gHouseBlue)"/>
+      <path d="M1044,452 L1169,376 L1294,452 Z" fill="url(#gRoofPurple)"/>
+      <rect x="1226" y="388" width="26" height="50" rx="6" fill="#9A55D6"/>
+      <rect x="1098" y="480" width="46" height="46" rx="10" fill="url(#gWindow)"/>
+      <line x1="1121" y1="480" x2="1121" y2="526" stroke-width="4"/>
+      <line x1="1098" y1="503" x2="1144" y2="503" stroke-width="4"/>
+      <rect x="1196" y="480" width="46" height="46" rx="10" fill="url(#gWindow)"/>
+      <line x1="1219" y1="480" x2="1219" y2="526" stroke-width="4"/>
+      <line x1="1196" y1="503" x2="1242" y2="503" stroke-width="4"/>
+      <circle cx="1169" cy="416" r="16" fill="url(#gWindow)"/>
+    </g>
+
+    <!-- front hills -->
+    <path d="M0,560 Q300,470 640,532 T1140,520 T1440,548 L1440,640 L0,640 Z" fill="url(#gHillFront)"/>
+    <path d="M0,560 Q300,470 640,532 T1140,520 T1440,548" fill="none" stroke="#8FE06B" stroke-width="10" opacity=".55"/>
+
+    <!-- bushes / flowers / mushroom on front hill -->
+    <g stroke="#2E7D28" stroke-width="5">
+      <ellipse cx="470" cy="580" rx="52" ry="26" fill="url(#gTree)"/>
+      <ellipse cx="522" cy="588" rx="38" ry="20" fill="url(#gTree)"/>
+      <ellipse cx="932" cy="586" rx="46" ry="24" fill="url(#gTree)"/>
+    </g>
+    <g stroke="#4A2B7A" stroke-width="3.5" stroke-linejoin="round">
+      <line x1="640" y1="596" x2="640" y2="574"/><circle cx="640" cy="566" r="9" fill="#FF5FA2"/><circle cx="640" cy="566" r="3.4" fill="#FFF06B" stroke="none"/>
+      <line x1="676" y1="600" x2="676" y2="580"/><circle cx="676" cy="572" r="8" fill="#FFC531"/><circle cx="676" cy="572" r="3" fill="#FF5FA2" stroke="none"/>
+      <line x1="806" y1="598" x2="806" y2="578"/><circle cx="806" cy="570" r="8.6" fill="#4FD1F9"/><circle cx="806" cy="570" r="3.2" fill="#FFF06B" stroke="none"/>
+    </g>
+    <g stroke="#4A2B7A" stroke-width="4" stroke-linejoin="round">
+      <rect x="1042" y="586" width="16" height="18" rx="6" fill="#FFF3D9"/>
+      <path d="M1030,588 a20,16 0 0 1 40,0 Z" fill="#F5484D"/>
+      <circle cx="1042" cy="580" r="3" fill="#fff" stroke="none"/><circle cx="1058" cy="582" r="2.6" fill="#fff" stroke="none"/>
+    </g>
+
+    <!-- fence -->
+    <g stroke="#5e3d1c" stroke-width="4">
+      <line x1="0" y1="614" x2="1440" y2="614" stroke-width="7"/>
+      <rect x="34" y="596" width="13" height="36" rx="5" fill="#8B5A2B"/>
+      <rect x="118" y="596" width="13" height="36" rx="5" fill="#8B5A2B"/>
+      <rect x="202" y="596" width="13" height="36" rx="5" fill="#8B5A2B"/>
+      <rect x="1230" y="596" width="13" height="36" rx="5" fill="#8B5A2B"/>
+      <rect x="1314" y="596" width="13" height="36" rx="5" fill="#8B5A2B"/>
+      <rect x="1398" y="596" width="13" height="36" rx="5" fill="#8B5A2B"/>
+    </g>
+  </svg>
+
+  <div class="floaties">
+    <span class="confetti cf1"></span><span class="confetti cf2"></span><span class="confetti cf3"></span>
+    <span class="confetti cf4"></span><span class="confetti cf5"></span><span class="confetti cf6"></span>
+    <span class="confetti cf7"></span><span class="confetti cf8"></span>
+    <span class="spark sp1">✨</span><span class="spark sp2">⭐</span><span class="spark sp3">✨</span>
+  </div>
+</div>
+<script src="assets/vendor/three.min.js" defer></script>
+<script src="js/scene3d.js" defer></script>
+
+<!-- ===== TOP BAR ===== -->
 <header class="topbar">
   <a class="brand" href="#top" aria-label="STOCKPAWS home">
-    <img src="assets/icons/icon-192.png" alt="" class="brand-mark">
-    <span class="brand-word">STOCK<span class="brand-paw">🐾</span>PAWS</span>
+    <span class="wordmark"><em>ST<span class="o-paw">🐾</span>CK</em><strong>PAWS</strong></span>
   </a>
-  <button id="connectBtn" class="btn btn-connect" type="button">Connect Wallet</button>
+  <nav class="topnav">
+    <a href="#desk">Desk</a><a href="#pack">Pack</a><a href="#tickers">Stocks</a><a href="#token">$PAWS</a>
+  </nav>
+  <div class="topbar-right">
+    <button id="soundToggle" class="btn-icon" type="button" aria-label="Toggle sound">🔊</button>
+    <button id="connectBtn" class="btn btn-connect" type="button">Connect Wallet</button>
+  </div>
 </header>
 
-<!-- ============ HERO ============ -->
 <main id="top">
-<section class="hero">
-  <div class="coins" aria-hidden="true">
-    <span class="coin c1">🐾</span><span class="coin c2">🪙</span><span class="coin c3">🐾</span>
-    <span class="coin c4">🪙</span><span class="coin c5">⭐</span><span class="coin c6">🪙</span>
-  </div>
-  <p class="hero-eyebrow">Robinhood Chain · Pet Agents · Stock Tokens</p>
-  <h1 class="hero-title">Fund them.<br>Tame them.<br><span class="rainbow">Hunt stocks.</span></h1>
+<!-- ===== HERO ===== -->
+<section class="hero hero-art">
+  <div class="hero-inner">
+  <h1 class="hero-logo"><span class="hl-stock">ST<span class="hl-paw">🐾</span>CK</span><span class="hl-paws">PAWS</span></h1>
+  <p class="hero-tag">Robinhood Chain · Pet Agents · Stock Tokens</p>
+  <h2 class="hero-title">Fund them. Tame them.<br><span class="hunt">Hunt stocks!</span></h2>
   <p class="hero-sub"><strong>STOCKPAWS</strong> is pet agents with a leash. Connect your wallet on <strong>Robinhood Chain</strong>, fund your hunter, tame it, and co-sign stock-token hunts.</p>
   <div class="hero-cta">
-    <a class="btn btn-buy" id="buyBtnHero" href="#" target="_blank" rel="noopener">Buy $PAWS</a>
-    <a class="btn btn-ghost" href="#desk">Open desk</a>
+    <a class="btn btn-buy" id="buyBtnHero" href="#" target="_blank" rel="noopener">🪙 Buy $PAWS</a>
+    <a class="btn btn-purple" href="#desk">Open desk</a>
   </div>
-
-  <div class="hero-pack">
-    <img src="assets/pets/waffles-1.png" alt="Waffles the cat with dual blades" class="pack-pet" style="--d:0s">
-    <img src="assets/pets/vix-1.png" alt="Vix the fox with sniper rifle" class="pack-pet" style="--d:.15s">
-    <img src="assets/pets/scout-3.png" alt="Scout the husky with shield" class="pack-pet" style="--d:.3s">
-    <img src="assets/pets/moss-1.png" alt="Moss the capybara with staff" class="pack-pet" style="--d:.45s">
+  </div><!-- /hero-inner -->
+  <div class="hero-spacer"></div>
+  <div class="strip">
+    <div class="strip-card"><span class="strip-big">24/7</span><span class="strip-small">stock markets</span></div>
+    <div class="strip-card"><span class="strip-big">20+</span><span class="strip-small">tokenized stocks</span></div>
+    <div class="strip-card"><span class="strip-big">YOU</span><span class="strip-small">hold the leash</span></div>
   </div>
-  <div class="grass" aria-hidden="true"></div>
 </section>
 
-<!-- ============ STATS STRIP ============ -->
-<section class="strip">
-  <div class="strip-card"><span class="strip-big">24/7</span><span class="strip-small">Stock-token markets</span></div>
-  <div class="strip-card"><span class="strip-big">20+</span><span class="strip-small">Tokenized stocks</span></div>
-  <div class="strip-card"><span class="strip-big">You</span><span class="strip-small">hold the leash</span></div>
-</section>
-
-<!-- ============ DESK (interactive) ============ -->
+<!-- ===== DESK (mock-faithful card) ===== -->
 <section class="section" id="desk">
-  <p class="eyebrow">Full Desk</p>
-  <h2>Talk to your agent.<br>Hold the leash.</h2>
-  <p class="section-sub">Connect wallet to unlock feed / train / hunt.</p>
+  <span class="ribbon">Full Desk</span>
+  <h2>Talk to your agent. Hold the leash.</h2>
 
-  <div class="desk-card sticker">
+  <div class="desk-card">
     <div class="desk-head">
       <div class="desk-status"><span class="dot" id="netDot"></span><span id="netLabel">Connect wallet · RH · 4663</span></div>
-      <div class="desk-badges"><span class="badge" id="lvlBadge">Lv 1</span><span class="badge badge-sim" id="pnlBadge">+0.00 sim</span></div>
+      <div class="desk-badges"><span class="badge badge-lv" id="lvlBadge">Lv 1</span></div>
     </div>
 
     <div class="desk-notice" id="deskNotice">Connect wallet (top right) to fund, train, and hunt on RH.</div>
 
     <div class="desk-pet">
-      <div class="desk-avatar-wrap"><img id="petAvatar" src="assets/pets/waffles-1.png" alt="Active pet"><span class="mood" id="petMood">😺</span></div>
+      <div class="desk-avatar-wrap"><img id="petAvatar" src="assets/pets/waffles-1.png" alt="Active pet"></div>
       <div class="desk-id">
         <h3 id="petName">Waffles</h3>
-        <p id="petMeta">Scalper · bond 62% · Unfunded</p>
-        <div class="xp-row"><div class="xp-bar"><i id="xpFill" style="width:18%"></i></div><span class="xp-text" id="xpText">40/220 xp</span></div>
+        <p class="pet-role-line" id="petMeta">Scalper · bond 62% · Unfunded</p>
+        <div class="mood-box"><span class="mood-label">Mood</span><span class="mood-emoji" id="petMood">😺</span></div>
       </div>
+    </div>
+
+    <div class="money-row">
+      <div class="money-box dash-purple"><span class="money-label">Balance</span><span class="money-val" id="balanceVal">$300</span></div>
+      <div class="money-box dash-green"><span class="money-label">P&amp;L <i class="sim-tag">sim</i></span><span class="money-val pnl" id="pnlBadge">+$0.00</span></div>
     </div>
 
     <div class="vault-row">
       <div class="vault-box"><span class="vault-label">Wallet</span><span class="vault-val" id="walletShort">—</span></div>
       <div class="vault-box"><span class="vault-label">Agent vault</span><span class="vault-val mono" id="vaultBal">0.0000 ETH</span></div>
     </div>
+
+    <div class="xp-row"><span class="xp-label">XP</span><div class="xp-bar"><i id="xpFill" style="width:18%"></i></div><span class="xp-text" id="xpText">40/220</span></div>
 
     <div class="pet-picker" id="petPicker">
       <button class="pick active" data-pet="waffles" type="button"><img src="assets/pets/waffles-1.png" alt="Waffles"></button>
@@ -106,13 +249,13 @@
     <div class="bar-row"><span>Autonomy</span><input type="range" id="autonomy" min="0" max="100" value="25"><span id="autonomyVal">25%</span></div>
 
     <div class="desk-actions">
-      <button class="btn btn-mini" data-act="feed" type="button">Feed</button>
-      <button class="btn btn-mini" data-act="praise" type="button">Praise</button>
-      <button class="btn btn-mini" data-act="scold" type="button">Scold</button>
-      <button class="btn btn-mini btn-scan" data-act="scan" type="button">Scan stocks</button>
+      <button class="btn btn-act" data-act="feed" type="button">🍖 Feed</button>
+      <button class="btn btn-act" data-act="praise" type="button">💚 Praise</button>
+      <button class="btn btn-act" data-act="scold" type="button">👉 Scold</button>
+      <button class="btn btn-act btn-scan" data-act="scan" type="button">🎯 Hunt</button>
     </div>
 
-    <div class="proposal sticker-thin" id="proposal" hidden>
+    <div class="proposal" id="proposal" hidden>
       <div class="proposal-head"><strong id="propTicker">$AAPL</strong><span class="badge badge-sim">SIM</span></div>
       <p class="proposal-body" id="propBody">LONG 10 @ 189.42</p>
       <div class="proposal-actions">
@@ -121,53 +264,53 @@
       </div>
     </div>
 
-    <div class="trades sticker-thin">
-      <p class="trades-title">Recent trades <span class="badge badge-sim">SIM</span></p>
-      <ul id="tradeList"><li class="trade-empty">No hunts yet. Scan stocks to get a proposal.</li></ul>
+    <div class="trades">
+      <span class="trades-ribbon">Recent Trades</span>
+      <ul id="tradeList"><li class="trade-empty">No hunts yet. Tap Hunt to get a proposal.</li></ul>
     </div>
 
-    <div class="petlog" id="petLog"><span class="log-name" id="logName">WAFFLES</span> Desk online. Connect wallet (top right) to fund, train, and hunt for real.</div>
+    <div class="petlog" id="petLog"><span class="log-name">WAFFLES</span> Desk online. Connect wallet (top right) to fund, train, and hunt for real.</div>
   </div>
-  <p class="memory-note">Memory: progress saves in this browser. Wins and vetoes shape the pet. On-chain hunts land with the vault contracts.</p>
+  <p class="memory-note">Progress saves to your wallet — cloud + this device. Trades are labeled SIM until vault contracts ship.</p>
 </section>
 
-<!-- ============ THE LOOP ============ -->
+<!-- ===== LOOP ===== -->
 <section class="section">
-  <p class="eyebrow">The Loop</p>
-  <h2>Not a bot farm.<br>A pet you raise.</h2>
+  <span class="ribbon">The Loop</span>
+  <h2>Not a bot farm. A pet you raise.</h2>
   <div class="loop-grid">
-    <div class="loop-card sticker"><span class="loop-num">01</span><h3>Hatch</h3><p>Spawn a unique agent pet with face, voice, and risk DNA.</p></div>
-    <div class="loop-card sticker"><span class="loop-num">02</span><h3>Fund</h3><p>Deposit gas + balance on Robinhood Chain. No funds, no hunt.</p></div>
-    <div class="loop-card sticker"><span class="loop-num">03</span><h3>Tame</h3><p>Train style: scalper, swing, guardian. Feed wins. Punish dumb size.</p></div>
-    <div class="loop-card sticker"><span class="loop-num">04</span><h3>Hunt</h3><p>Pet proposes stock-token trades. You approve, edit, or veto.</p></div>
+    <div class="loop-card"><span class="loop-num n1">01</span><h3>🥚 Hatch</h3><p>Spawn a unique agent pet with face, voice, and risk DNA.</p></div>
+    <div class="loop-card"><span class="loop-num n2">02</span><h3>🪙 Fund</h3><p>Deposit gas + balance on Robinhood Chain. No funds, no hunt.</p></div>
+    <div class="loop-card"><span class="loop-num n3">03</span><h3>🎓 Tame</h3><p>Train style: scalper, swing, guardian. Feed wins. Punish dumb size.</p></div>
+    <div class="loop-card"><span class="loop-num n4">04</span><h3>🎯 Hunt</h3><p>Pet proposes stock-token trades. You approve, edit, or veto.</p></div>
   </div>
 </section>
 
-<!-- ============ THE PACK ============ -->
+<!-- ===== PACK ===== -->
 <section class="section" id="pack">
-  <p class="eyebrow">The Pack</p>
-  <h2>Agents are pets.<br>Pets have edges.</h2>
+  <span class="ribbon">The Pack</span>
+  <h2>Agents are pets. Pets have edges.</h2>
   <div class="pack-grid">
-    <article class="pet-card sticker">
-      <img src="assets/pets/waffles-1.png" alt="Waffles, a grey kitten in a green hoodie holding two glowing blades" loading="lazy">
+    <article class="pet-card pc-blue">
+      <img class="card-art" src="assets/art/card-waffles.jpg" alt="Waffles slicing a gold paw coin mid-air with dual blades" loading="lazy">
       <h3>Waffles</h3><p class="pet-role">Agent of Chaos · Scalper</p>
       <p class="pet-bio">Dual-wielding expert ready to slice through any challenge. Fast in, faster out.</p>
       <p class="pet-tickers">$NVDA · $AAPL · $QQQ</p>
     </article>
-    <article class="pet-card sticker">
-      <img src="assets/pets/scout-3.png" alt="Scout, a husky puppy in tactical gear holding a glowing paw shield" loading="lazy">
+    <article class="pet-card pc-yellow">
+      <img class="card-art" src="assets/art/card-scout.jpg" alt="Scout blocking falling red arrows with his glowing paw shield" loading="lazy">
       <h3>Scout</h3><p class="pet-role">Defensive Strategist · Guardian</p>
       <p class="pet-bio">Protecting the team with unwavering loyalty. Shield up, bag safe.</p>
       <p class="pet-tickers">$SPY · $MSFT · $JPM</p>
     </article>
-    <article class="pet-card sticker">
-      <img src="assets/pets/moss-1.png" alt="Moss, a capybara in a green hoodie holding a glowing staff" loading="lazy">
+    <article class="pet-card pc-green">
+      <img class="card-art" src="assets/art/card-moss.jpg" alt="Moss sitting calmly with his staff as butterflies and coins drift by" loading="lazy">
       <h3>Moss</h3><p class="pet-role">Nature's Guardian · Swing</p>
       <p class="pet-bio">Bringing calm to the chaos. Patient stalker. Sits on levels. Hates chase.</p>
       <p class="pet-tickers">$GOOGL · $AMZN · $DIS</p>
     </article>
-    <article class="pet-card sticker">
-      <img src="assets/pets/vix-1.png" alt="Vix, a fox in tactical gear holding a sniper rifle" loading="lazy">
+    <article class="pet-card pc-pink">
+      <img class="card-art" src="assets/art/card-vix.jpg" alt="Vix aiming at a glowing stock chart target" loading="lazy">
       <h3>Vix</h3><p class="pet-role">Stealth Specialist · Sniper</p>
       <p class="pet-bio">Quick and precise, never chases. One shot, one fill.</p>
       <p class="pet-tickers">$TSLA · $AMD · $COIN</p>
@@ -175,9 +318,9 @@
   </div>
 </section>
 
-<!-- ============ HUNTING GROUND ============ -->
+<!-- ===== HUNTING GROUND ===== -->
 <section class="section" id="tickers">
-  <p class="eyebrow">Hunting Ground</p>
+  <span class="ribbon">Hunting Ground</span>
   <h2>Robinhood tokenized stocks</h2>
   <p class="section-sub">ERC-20 stock tokens on RH. Verify live contracts before trading. NFA.</p>
   <div class="filter-row">
@@ -187,27 +330,16 @@
   <div class="ticker-grid" id="tickerGrid"></div>
 </section>
 
-<!-- ============ HUMAN ============ -->
-<section class="section">
-  <p class="eyebrow">Human</p>
-  <h2>Agent proposes. You decide.</h2>
-  <div class="human-grid">
-    <div class="human-card sticker"><h3>Co-pilot</h3><p>Connect wallet → fund vault → hunt → approve or veto.</p></div>
-    <div class="human-card sticker"><h3>Social pets</h3><p>Bond, drip, raid. Creatures people care about.</p></div>
-    <div class="human-card sticker"><h3>Memory</h3><p>Progress saves in this browser. Wins and vetoes shape the pet.</p></div>
-  </div>
-</section>
-
-<!-- ============ PROTOCOL SURFACE ============ -->
+<!-- ===== TOKEN ===== -->
 <section class="section" id="token">
-  <p class="eyebrow">$PAWS</p>
+  <span class="ribbon">$PAWS</span>
   <h2>Protocol surface</h2>
-  <div class="proto-card sticker">
+  <div class="proto-card">
     <div class="proto-row"><span>Ticker</span><strong>$PAWS</strong></div>
     <div class="proto-row"><span>Chain</span><strong>RH · 4663</strong></div>
-    <div class="proto-row proto-ca"><span>Contract</span><strong class="mono" id="caText">0xYOUR_TOKEN_CONTRACT_ADDRESS</strong></div>
-    <a class="btn btn-buy btn-block" id="buyBtn" href="#" target="_blank" rel="noopener">Buy Now</a>
-    <button class="btn btn-ghost btn-block" id="copyCaBtn" type="button">Copy CA</button>
+    <div class="proto-row proto-ca"><span>Contract</span><strong class="mono" id="caText">TBA</strong></div>
+    <a class="btn btn-buy btn-block" id="buyBtn" href="#" target="_blank" rel="noopener">🪙 Buy Now</a>
+    <button class="btn btn-purple btn-block" id="copyCaBtn" type="button">📋 Copy CA</button>
     <ul class="proto-list">
       <li>Hatch / cosmetics</li>
       <li>Tame speed boosts</li>
@@ -226,21 +358,17 @@
   </div>
 </section>
 
-<!-- ============ FINAL CTA ============ -->
+<!-- ===== FINAL ===== -->
 <section class="section final-cta">
-  <div class="final-card sticker">
-    <h2>Raise a hunter.<br>Keep the leash.</h2>
+  <div class="final-card final-art"><div class="final-overlay">
+    <h2>Raise a hunter. Keep the leash.</h2>
     <p>Connect · fund · tame · co-sign. Pet agents for RH stock tokens.</p>
     <div class="hero-cta">
-      <a class="btn btn-buy" id="buyBtnFooter" href="#" target="_blank" rel="noopener">Buy $PAWS</a>
-      <a class="btn btn-ghost" href="#desk">Open desk</a>
+      <a class="btn btn-buy" id="buyBtnFooter" href="#" target="_blank" rel="noopener">🪙 Buy $PAWS</a>
+      <a class="btn btn-purple" href="#desk">Open desk</a>
     </div>
-    <div class="final-pets">
-      <img src="assets/pets/waffles-3.png" alt="" loading="lazy">
-      <img src="assets/pets/vix-4.png" alt="" loading="lazy">
-      <img src="assets/pets/scout-4.png" alt="" loading="lazy">
-      <img src="assets/pets/moss-2.png" alt="" loading="lazy">
-    </div>
+    </div><!-- /final-overlay -->
+    <div class="final-spacer"></div>
   </div>
 </section>
 
@@ -250,19 +378,26 @@
 </footer>
 </main>
 
-<!-- ============ WALLET MODAL ============ -->
+<!-- ===== BOTTOM NAV (mobile) ===== -->
+<nav class="bottomnav" aria-label="Quick navigation">
+  <a href="#top" class="bn-item"><span class="bn-ico">🏠</span><span>Home</span></a>
+  <a href="#desk" class="bn-item bn-trade"><span class="bn-paw">🐾</span><span>Trade</span></a>
+  <a href="#pack" class="bn-item"><span class="bn-ico">🐱</span><span>Friends</span></a>
+</nav>
+
+<!-- ===== WALLET MODAL ===== -->
 <div class="modal-backdrop" id="walletModal" hidden>
-  <div class="modal sticker" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
     <div class="modal-head"><h3 id="walletModalTitle">Connect a wallet</h3><button class="modal-close" id="walletModalClose" type="button" aria-label="Close">✕</button></div>
     <p class="modal-sub" id="walletModalSub">Pick a wallet. Watch-only wallets can't connect — you'll sign a quick message to prove it's yours (free, no gas).</p>
     <div class="wallet-list" id="walletList"></div>
     <div class="wallet-deeplinks" id="walletDeeplinks" hidden>
       <p class="modal-sub">No wallet detected in this browser. Open STOCKPAWS inside your wallet's browser:</p>
       <div class="deeplink-row">
-        <a class="btn btn-mini" id="dlMetaMask" href="#">MetaMask</a>
-        <a class="btn btn-mini" id="dlTrust" href="#">Trust</a>
-        <a class="btn btn-mini" id="dlCoinbase" href="#">Coinbase</a>
-        <a class="btn btn-mini" id="dlPhantom" href="#">Phantom</a>
+        <a class="btn btn-act" id="dlMetaMask" href="#">MetaMask</a>
+        <a class="btn btn-act" id="dlTrust" href="#">Trust</a>
+        <a class="btn btn-act" id="dlCoinbase" href="#">Coinbase</a>
+        <a class="btn btn-act" id="dlPhantom" href="#">Phantom</a>
       </div>
     </div>
     <div class="wallet-status" id="walletStatus" hidden></div>
